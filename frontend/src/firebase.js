@@ -19,7 +19,9 @@ import {
   INITIAL_HOME,
   INITIAL_FOOTER,
   INITIAL_CHALLENGES,
-  INITIAL_POSTS
+  INITIAL_POSTS,
+  INITIAL_ARTICLES,
+  INITIAL_COMMENTS
 } from "./data/initialData.js";
 import { WILAYAS_69 } from "./data/wilayas.js";
 
@@ -100,9 +102,10 @@ export async function ensureSeedData() {
       await setDoc(doc(adminDb, "settings", "delivery"), initialDelivery).catch(() => {});
     }
 
-    // Seed Ghayma Challenges
-    const challengesSnap = await getDocs(collection(db, "challenges"));
-    if (challengesSnap.empty) {
+    // Seed / Ensure Primary Ghayma Challenge (November Fajr Challenge)
+    const fajrDoc = doc(db, "challenges", "fajr-prayer-nov-2026");
+    const fajrSnap = await getDoc(fajrDoc);
+    if (!fajrSnap.exists()) {
       for (const ch of INITIAL_CHALLENGES) {
         await setDoc(doc(db, "challenges", ch.id), ch);
         await setDoc(doc(adminDb, "challenges", ch.id), ch).catch(() => {});
@@ -115,6 +118,19 @@ export async function ensureSeedData() {
       for (const p of INITIAL_POSTS) {
         await setDoc(doc(db, "challenge_posts", p.id), p);
         await setDoc(doc(adminDb, "challenge_posts", p.id), p).catch(() => {});
+      }
+    }
+
+    // Seed Ghayma Articles & Initial Comments
+    const articlesSnap = await getDocs(collection(db, "articles"));
+    if (articlesSnap.empty) {
+      for (const art of INITIAL_ARTICLES) {
+        await setDoc(doc(db, "articles", art.id), art);
+        await setDoc(doc(adminDb, "articles", art.id), art).catch(() => {});
+      }
+      for (const com of INITIAL_COMMENTS) {
+        await setDoc(doc(db, "article_comments", com.id), com);
+        await setDoc(doc(adminDb, "article_comments", com.id), com).catch(() => {});
       }
     }
 
@@ -388,4 +404,107 @@ export async function reactToChallengePost(postId, reactionType = "like") {
       [field]: increment(1)
     }).catch(() => {});
   } catch (_) {}
+}
+
+export function subscribeArticles(callback) {
+  return onSnapshot(
+    collection(db, "articles"),
+    (snapshot) => {
+      if (snapshot.empty) {
+        callback(INITIAL_ARTICLES);
+      } else {
+        const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        callback(list);
+      }
+    },
+    (err) => {
+      console.warn("Articles sub error:", err);
+      callback(INITIAL_ARTICLES);
+    }
+  );
+}
+
+export function subscribeArticle(articleId, callback) {
+  return onSnapshot(
+    doc(db, "articles", articleId),
+    (snap) => {
+      if (snap.exists()) {
+        callback({ id: snap.id, ...snap.data() });
+      } else {
+        const fallback = INITIAL_ARTICLES.find((a) => a.id === articleId) || INITIAL_ARTICLES[0];
+        callback(fallback);
+      }
+    },
+    () => {
+      const fallback = INITIAL_ARTICLES.find((a) => a.id === articleId) || INITIAL_ARTICLES[0];
+      callback(fallback);
+    }
+  );
+}
+
+export function subscribeArticleComments(articleId, callback) {
+  return onSnapshot(
+    collection(db, "article_comments"),
+    (snapshot) => {
+      const all = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const filtered = all
+        .filter((c) => c.articleId === articleId)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      callback(filtered);
+    },
+    (err) => {
+      console.warn("Article comments sub error:", err);
+      callback(INITIAL_COMMENTS.filter((c) => c.articleId === articleId));
+    }
+  );
+}
+
+export async function addArticleComment(articleId, commentData) {
+  const newComment = {
+    id: "com-" + Date.now(),
+    articleId,
+    authorName: commentData.authorName || "قارئة غيمة",
+    authorAvatar: commentData.authorAvatar || "🌸",
+    content: commentData.content || "",
+    createdAt: new Date().toISOString()
+  };
+  try {
+    await setDoc(doc(db, "article_comments", newComment.id), newComment);
+    await setDoc(doc(adminDb, "article_comments", newComment.id), newComment).catch(() => {});
+    await updateDoc(doc(db, "articles", articleId), {
+      commentsCount: increment(1)
+    }).catch(() => {});
+    await updateDoc(doc(adminDb, "articles", articleId), {
+      commentsCount: increment(1)
+    }).catch(() => {});
+  } catch (err) {
+    console.warn("Add comment error:", err);
+  }
+  return newComment;
+}
+
+export async function likeArticle(articleId) {
+  try {
+    await updateDoc(doc(db, "articles", articleId), {
+      likesCount: increment(1)
+    });
+    await updateDoc(doc(adminDb, "articles", articleId), {
+      likesCount: increment(1)
+    }).catch(() => {});
+  } catch (_) {}
+}
+
+export async function saveUserRoutine(userId, routineText) {
+  if (!userId || !routineText) return null;
+  const routine = {
+    id: "rtn-" + Date.now(),
+    userId,
+    text: routineText,
+    completed: false,
+    createdAt: new Date().toISOString()
+  };
+  try {
+    await setDoc(doc(db, "user_routines", routine.id), routine);
+  } catch (_) {}
+  return routine;
 }

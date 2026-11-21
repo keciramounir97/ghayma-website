@@ -11,12 +11,14 @@
 Le studio d'administration permet à l'auteure `ghayma_rd (R.Dahmane)` et à son équipe de gérer l'intégralité du site vitrine et de la boutique en temps réel :
 1. **Gestion des Commandes des 69 Wilayas** avec modal ticket interactif.
 2. **Gestion du Catalogue de Livres** (titres, résumés multilingues, photos, prix, stocks).
-3. **Bouton Coché Vert pour l'Activation des Tarifs de Livraison** et configuration des 69 Wilayas.
-4. **Gestion des Défis Ghayma (Challenges)** (24h, semaine, mois, annuel ou personnalisé).
-5. **Blog Pinterest & Publication d'Inspirations** avec compteurs de réactions (Cœurs, Étincelles).
-6. **Statistiques en Temps Réel** : visiteuses du site, clics sur les défis, abonnées inscrites, chiffre d'affaires DZD.
-7. **Éditeurs avec Aperçu en Direct** pour la section Hero, la page À Propos, les avis et le Footer.
-8. **Boîte de Réception des Messages Contact**.
+3. **Gestion des Articles de Blog & Récits** (`ArticlesAdminPage.jsx`) avec import de photos multiples et galerie.
+4. **Modération des Commentaires des Lectrices** sur les articles de blog.
+5. **Bouton Coché Vert pour l'Activation des Tarifs de Livraison** et configuration des 69 Wilayas.
+6. **Gestion des Défis Ghayma (Challenges)** avec modèles prêts en 1 clic (Prière du Fajr fin Novembre, 24h Détox, 30 jours gratitude).
+7. **Blog Pinterest & Publication d'Inspirations** avec compteurs de réactions (Cœurs, Étincelles).
+8. **Statistiques en Temps Réel** : visiteuses du site, clics sur les défis, abonnées inscrites, chiffre d'affaires DZD.
+9. **Éditeurs avec Aperçu en Direct** pour la section Hero, la page À Propos, les avis et le Footer.
+10. **Boîte de Réception des Messages Contact**.
 
 ---
 
@@ -28,91 +30,41 @@ L'administration est reliée simultanément à deux projets Firebase Firestore :
 
 ---
 
-## 3. Guide Page par Page
+## 3. Guide des Nouvelles Pages & Outils
 
-### 📊 1. Vue d'Ensemble (`OverviewPage.jsx`)
-- Cartes KPI réactives :
-  - **Total Commandes** (avec montant total du chiffre d'affaires en DZD).
-  - **Livres Publiés** dans le catalogue.
-  - **Messages Non Lus** du formulaire de contact.
-  - **Wilayas Actives** sur les 69 wilayas algériennes.
-- Raccourcis directs vers les éditeurs visuels avec aperçu en direct.
+### ✍️ 1. Gestion des Articles de Blog (`ArticlesAdminPage.jsx`)
+- **Nouvel Article / Édition** :
+  - Titre (Français & Arabe), Catégorie (*Spiritualité & Routine*, *Parcours Littéraire*, *Écriture & Poésie*), Temps de lecture estimé.
+  - Extrait accrocheur et Contenu complet éditorial.
+  - **Import de Couverture** : Compression automatique à la volée en Canvas JPEG.
+  - **Galerie Photos Multiples** : Possibilité d'attacher plusieurs photos d'ambiance à l'article.
+  - Interrupteur Publié / Brouillon.
+- **Modération des Commentaires** :
+  - Onglet dédié répertoriant tous les avis et commentaires laissés par les lectrices avec leur pseudo et avatar.
+  - Suppression immédiate en 1 clic pour maintenir un espace bienveillant.
 
----
+### 🏆 2. Gestion des Défis Ghayma & Templates Prêts (`ChallengesAdminPage.jsx`)
+- **Modèles Prêts en 1 Clic (Templates)** :
+  - 🤲 **Prière du Fajr (Fin Novembre)** : pré-remplit les titres, les habitudes clés, le compte à rebours et le calendrier 30 jours.
+  - ⚡ **24h Chrono Détox** : pré-remplit le défi court avec minuteur actif.
+  - 🌸 **30 Jours de Gratitude** : pré-remplit les rituels de satisfaction quotidienne.
+- **Indicateurs Clés en Direct** :
+  - Nombre total d'abonnées au défi, clics générés, taux d'engagement.
+- **Annuaire des Abonnées** :
+  - Liste des lectrices inscrites avec nom, wilaya et date.
 
-### 📦 2. Commandes Clients (`OrdersPage.jsx`)
-- **Affichage Adaptatif Intelligent** :
-  - **Sur Ordinateur (Desktop)** : Tableau Material complet avec colonnes Ticket, Livre, Client, Wilaya, Mode de livraison, Total DZD, Statut et Actions.
-  - **Sur Smartphone & Tablette** : Cartes tactiles interactives au format ticket (`#CMD-XXXXX`). Un simple toucher ouvre le **Modal Ticket de Commande**.
-- **Modal Ticket (`OrderTicketModal.jsx`)** :
-  - Impression directe du ticket pour le colis.
-  - Modification du statut de commande : *En attente*, *Confirmée*, *Expédiée*, *Livrée*, *Annulée*.
-  - Bouton d'appel téléphonique direct et suppression sécurisée.
-
----
-
-### 📚 3. Gestion des Livres (`BooksPage.jsx`)
-- Permet d'ajouter ou modifier un ou plusieurs livres.
-- **Téléversement & Optimisation d'Images** :
-  - Les photos sont automatiquement redimensionnées et compressées en Canvas JPEG haute fidélité côté client avant sauvegarde, évitant tout souci de quota ou de CORS.
-- Champs multilingues complets : Titre (AR/FR/EN), Sous-titre, Synopsis, Citation poétique, Prix DZD, Ancien Prix, Nombre de pages, ISBN, Maison d'édition, Catégorie et Badge.
+### ⚙️ 3. Contrôle des Frais de Livraison & Simulation Client (`SettingsPage.jsx`)
+- Bouton tactile clair et vert contrasté pour activer ou masquer instantanément les options de livraison à domicile et en agence.
+- Résolution complète des contrastes en mode blanc et sombre.
 
 ---
 
-### 🚚 4. Paramètres & Tarifs de Livraison (`SettingsPage.jsx` & `DeliveryWilayasPage.jsx`)
-
-#### Le Bouton Coché Vert :
-- **Si Coché en Vert (ACTIVÉ)** :
-  - La page des tarifs des 69 Wilayas est active.
-  - Les clientes voient sur la fiche produit le choix entre **Livraison à Domicile (À la maison)** et **Récupération en Agence (À l'agence / Stop Desk)**.
-  - Le calcul des frais de livraison s'effectue automatiquement selon la wilaya choisie et s'ajoute au total.
-- **Si Non Coché (DÉSACTIVÉ - الوضع الافتراضي)** :
-  - Le choix entre domicile et agence est masqué aux clientes.
-  - Aucun frais de livraison n'est calculé ni affiché dans le total (Total = Prix Livre × Quantité).
-- **Remplissage Rapide en Vrac** :
-  - Permet d'appliquer en un clic une agence par défaut (ex. *Yalidine Express*) et des prix standards pour les 69 wilayas avant d'ajuster individuellement.
-
----
-
-### 🌸 5. Gestion des Défis Ghayma & Blog Visuel (`ChallengesAdminPage.jsx`)
-- **Onglet 1 : Tableau des Défis** :
-  - Création de défis avec type au choix : **24 Heures Chrono**, **1 Semaine**, **1 Mois**, **1 An (Annuel)** ou **Dates Personnalisées**.
-  - Interrupteur pour activer le **Compte à Rebours (Minuteur/Chrono)**.
-  - Interrupteur pour activer le **Calendrier Interactif Jour par Jour**.
-  - Définition de la liste des rituels et habitudes quotidiens.
-- **Onglet 2 : Publication dans le Blog Pinterest / Journal** :
-  - Rédaction de pensées, citations, coulisses d'écriture.
-  - Sélection de stickers émojis (🌸, ✨, 📖, 🕯️, ☕, 🌙).
-  - Téléversement de photos et ajout de hashtags.
-  - Suivi des compteurs d'amour (Cœurs) et d'inspiration (Étincelles).
-- **Onglet 3 : Répertoire des Abonnées** :
-  - Liste nominative de toutes les lectrices inscrites aux défis avec leur prénom, leur wilaya, leur contact et leur date d'inscription.
-
----
-
-### ✍️ 6. Éditeurs de Contenu avec Aperçu en Direct
-- **Hero Accueil (`HeroEditorPage.jsx`)** : Titres poétiques, badges, boutons d'action et aperçu 3D.
-- **Section L'Écrivaine (`AboutEditorPage.jsx`)** : Biographie de `ghayma_rd (R.Dahmane)`, photo portrait, liens Instagram et statistiques.
-- **Sections Accueil & Avis (`HomeSectionsEditorPage.jsx`)** : Bannière de citation poétique et gestion des avis vérifiés de lectrices.
-- **Pied de Page (`FooterEditorPage.jsx`)** : Ruban d'annonce, coordonnées de contact, réseaux sociaux et mentions légales.
-
----
-
-### 📬 7. Boîte de Messages (`MessagesPage.jsx`)
-- Réception en temps réel des messages envoyés depuis la page Contact du site public avec modal ticket de lecture et actions rapides.
-
----
-
-## 4. Maintenance & Déploiement
+## 4. Déploiement
 
 ```bash
-# Lancer le tableau de bord en local
-cd admin-dashboard
-npm run dev
-
-# Compiler pour la production
+# Compilation de production
 npm run build
 
-# Déployer sur Firebase Hosting
+# Déploiement Hosting
 npx firebase-tools deploy --only hosting
 ```

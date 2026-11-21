@@ -56,6 +56,7 @@ export default function AdminLayout({ children }) {
     orders,
     books,
     messages,
+    articles = [],
     deliveryEnabled,
     addToast
   } = useAdminContext();
@@ -93,6 +94,12 @@ export default function AdminLayout({ children }) {
       icon: Trophy,
       badge: "Nouveau ✨",
       badgeColor: "bg-rose-500/20 text-rose-500"
+    },
+    {
+      to: "/articles",
+      label: lang === "ar" ? "المقالات والخواطر" : "Articles & Blog",
+      icon: Feather,
+      badge: (articles || []).length
     },
     { to: "/home-hero", label: t.nav.homeHero, icon: Sparkles },
     { to: "/about", label: t.nav.about, icon: UserPen },

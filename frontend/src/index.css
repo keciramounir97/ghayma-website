@@ -40,10 +40,20 @@ html {
 }
 
 @keyframes floatSlow {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(3deg); }
+}
+
+@keyframes floatPetal {
+  0% { transform: translateY(0) rotate(0deg) scale(0.9); opacity: 0.6; }
+  50% { transform: translateY(-12px) rotate(15deg) scale(1.05); opacity: 0.9; }
+  100% { transform: translateY(0) rotate(0deg) scale(0.9); opacity: 0.6; }
 }
 
 .animate-float {
   animation: floatSlow 5s ease-in-out infinite;
+}
+
+.animate-petal {
+  animation: floatPetal 6s ease-in-out infinite;
 }

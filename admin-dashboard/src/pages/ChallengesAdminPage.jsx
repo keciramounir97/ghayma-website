@@ -634,6 +634,85 @@ export default function ChallengesAdminPage() {
               </IconButton>
             </div>
 
+            {/* Quick Challenge Templates */}
+            <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 space-y-2">
+              <span className="text-xs font-bold text-rose-500 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Modèles prêts en 1 Clic (Templates) :</span>
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditingChallenge({
+                      ...editingChallenge,
+                      title: "تحدي صلاة الفجر في وقتها حتى نهاية نوفمبر 🤲✨",
+                      titleFr: "Défi Prière du Fajr à l'Heure jusqu'à la fin Novembre ✨",
+                      badge: "FAJR NOVEMBRE 🌙",
+                      category: "Prière du Fajr & Barakah",
+                      durationDays: 30,
+                      startDate: "2026-11-01",
+                      endDate: "2026-11-30",
+                      showCountdown: true,
+                      showCalendar: true,
+                      active: true,
+                      habitsText:
+                        "الاستيقاظ 15 دقيقة قبل أذان الفجر ⏰\nصلاة ركعتي سنة الفجر 🕊️\nأداء فريضة الفجر في وقتها بخشوع 🤲\nقراءة أذكار الصباح والسكينة 🌸\n10 دقائق قراءة وتدبر 📖"
+                    })
+                  }
+                  className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#25172e] border border-rose-300 dark:border-rose-900 text-rose-600 dark:text-rose-300 font-bold text-xs hover:bg-rose-500 hover:text-white transition-all cursor-pointer shadow-xs"
+                >
+                  🤲 Prière du Fajr (Fin Novembre)
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditingChallenge({
+                      ...editingChallenge,
+                      title: "تحدي 24 ساعة سكينة وهدوء رقمي 🌸",
+                      titleFr: "Challenge 24h Sérénité & Pause Digitale 🌸",
+                      badge: "24H CHRONO ✨",
+                      category: "Digital Detox & Paix",
+                      durationDays: 1,
+                      startDate: new Date().toISOString().slice(0, 10),
+                      endDate: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+                      showCountdown: true,
+                      showCalendar: false,
+                      active: true,
+                      habitsText:
+                        "قراءة 15 دقيقة في هدوء تام\nتدوين 3 مشاعر تشعرين بها الآن بكل صدق\nإطفاء الهاتف لمدة ساعة قبل النوم والتأمل"
+                    })
+                  }
+                  className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#25172e] border border-rose-300 dark:border-rose-900 text-rose-600 dark:text-rose-300 font-bold text-xs hover:bg-rose-500 hover:text-white transition-all cursor-pointer shadow-xs"
+                >
+                  ⚡ 24h Chrono Détox
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditingChallenge({
+                      ...editingChallenge,
+                      title: "تحدي 30 يوم لبناء عادات الرضا والامتنان 🌸",
+                      titleFr: "Challenge 30 Jours de Gratitude & Nouvelles Habitudes 🌸",
+                      badge: "30 JOURS GLOW 🌸",
+                      category: "Gratitude & Self-Care",
+                      durationDays: 30,
+                      startDate: new Date().toISOString().slice(0, 10),
+                      endDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+                      showCountdown: true,
+                      showCalendar: true,
+                      active: true,
+                      habitsText:
+                        "10 دقائق قراءة صباحية مع فنجان دافئ\nكتابة سطر امتنان في دفتركِ الخاص\nابتسامة لنفسكِ ودعاء من القلب"
+                    })
+                  }
+                  className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#25172e] border border-rose-300 dark:border-rose-900 text-rose-600 dark:text-rose-300 font-bold text-xs hover:bg-rose-500 hover:text-white transition-all cursor-pointer shadow-xs"
+                >
+                  🌸 30 Jours Gratitude
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-bold mb-1">{t.challenges.formTitleAr} *</label>

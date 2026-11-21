@@ -11,6 +11,9 @@ import BookDetailsPage from "./pages/BookDetailsPage.jsx";
 import AboutAuthorPage from "./pages/AboutAuthorPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
 import GhaymaChallengesPage from "./pages/GhaymaChallengesPage.jsx";
+import ArticlesPage from "./pages/ArticlesPage.jsx";
+import ArticleDetailsPage from "./pages/ArticleDetailsPage.jsx";
+import AuthModal from "./components/AuthModal.jsx";
 
 function FrontendShell() {
   const { t, dark, setDrawerOpen, setNotifOpen } = useAppContext();
@@ -32,11 +35,14 @@ function FrontendShell() {
       <Navbar />
       <BreadcrumbsBar />
       <ToastContainer />
+      <AuthModal />
 
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/books" element={<BooksCatalogPage />} />
+          <Route path="/articles" element={<ArticlesPage />} />
+          <Route path="/articles/:id" element={<ArticleDetailsPage />} />
           <Route path="/challenges" element={<GhaymaChallengesPage />} />
           <Route path="/book/:id" element={<BookDetailsPage />} />
           <Route path="/about" element={<AboutAuthorPage />} />

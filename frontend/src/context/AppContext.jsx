@@ -11,6 +11,7 @@ import {
   subscribeChallenges,
   subscribeChallengePosts,
   subscribeAnalytics,
+  subscribeArticles,
   trackWebsiteVisit
 } from "../firebase.js";
 import { TRANSLATIONS } from "../data/i18n.js";
@@ -30,6 +31,7 @@ export function AppProvider({ children }) {
     setDeliveryEnabled,
     setChallenges,
     setChallengePosts,
+    setArticles,
     setAnalytics
   } = store;
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ar;
@@ -53,6 +55,7 @@ export function AppProvider({ children }) {
     const unsubFooter = subscribeFooter(setFooterContent);
     const unsubChallenges = subscribeChallenges(setChallenges);
     const unsubPosts = subscribeChallengePosts(setChallengePosts);
+    const unsubArticles = subscribeArticles(setArticles);
     const unsubAnalytics = subscribeAnalytics(setAnalytics);
     const unsubDelivery = subscribeDeliverySettings((deliv) => {
       setDeliveryEnabled(deliv.deliveryEnabled);
@@ -65,6 +68,7 @@ export function AppProvider({ children }) {
       unsubFooter && unsubFooter();
       unsubChallenges && unsubChallenges();
       unsubPosts && unsubPosts();
+      unsubArticles && unsubArticles();
       unsubAnalytics && unsubAnalytics();
       unsubDelivery && unsubDelivery();
     };
@@ -77,6 +81,7 @@ export function AppProvider({ children }) {
     setDeliveryEnabled,
     setChallenges,
     setChallengePosts,
+    setArticles,
     setAnalytics
   ]);
 

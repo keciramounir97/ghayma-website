@@ -229,103 +229,143 @@ export const INITIAL_FOOTER = {
 
 export const INITIAL_CHALLENGES = [
   {
-    id: "challenge-24h-peace",
-    title: "تحدي 24 ساعة سكينة وهدوء رقمي 🌸",
-    titleFr: "Challenge 24h Sérénité & Pause Digitale 🌸",
-    titleEn: "24h Inner Peace & Digital Detox Challenge 🌸",
-    type: "24h",
-    durationDays: 1,
-    startDate: new Date().toISOString().slice(0, 10),
-    endDate: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
-    active: true,
-    featured: true,
-    showCountdown: true,
-    showCalendar: false,
-    badge: "24H CHRONO ✨",
-    category: "Mindfulness & Self-Love",
-    coverImage: "/images/book-front.jpg",
-    description: "24 ساعة مخصصة لراحة بالكِ وقراءة صفحات دافئة من «حياتي بعد الرضا». ابتعدي عن صخب الشاشات وتنفسي بعمق ♡",
-    descriptionFr: "24 heures dédiées à apaiser votre cœur, lire quelques pages et savourer l'instant présent sans stress.",
-    descriptionEn: "24 hours dedicated to quiet your mind, read warm pages from 'My Life After Contentment' and unwind.",
-    habits: [
-      "قراءة 15 دقيقة في هدوء تام",
-      "تدوين 3 مشاعر تشعرين بها الآن بكل صدق",
-      "إطفاء الهاتف لمدة ساعة قبل النوم والتأمل"
-    ],
-    viewsCount: 640,
-    clicksCount: 285,
-    subscribersCount: 142,
-    subscribers: [
-      { id: "sub-1", name: "أمينة ب.", wilaya: "16 - Alger", joinedAt: "2026-11-20T10:15:00Z" },
-      { id: "sub-2", name: "ياسمين ك.", wilaya: "31 - Oran", joinedAt: "2026-11-20T14:30:00Z" }
-    ],
-    createdAt: "2026-11-01T10:00:00Z"
-  },
-  {
-    id: "challenge-30d-gratitude",
-    title: "تحدي 30 يوم لبناء عادات الرضا والامتنان 🌙",
-    titleFr: "Challenge 30 Jours de Gratitude & Nouvelles Habitudes 🌙",
-    titleEn: "30-Day Gratitude & Habit Building Journey 🌙",
+    id: "fajr-prayer-nov-2026",
+    title: "تحدي صلاة الفجر في وقتها حتى نهاية نوفمبر 🤲✨",
+    titleFr: "Défi Prière du Fajr à l'Heure jusqu'à la fin Novembre ✨",
+    titleEn: "Fajr Prayer on Time Challenge until End of November ✨",
     type: "month",
     durationDays: 30,
-    startDate: new Date().toISOString().slice(0, 10),
-    endDate: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+    startDate: "2026-11-01",
+    endDate: "2026-11-30",
     active: true,
     featured: true,
     showCountdown: true,
     showCalendar: true,
-    badge: "30 JOURS GLOW 🌸",
-    category: "Habit Tracker & Gratitude",
+    showPrayerTimes: true,
+    badge: "DÉFI FAJR NOVEMBRE 🌙",
+    category: "Prière du Fajr & Barakah",
+    categoryAr: "صلاة الفجر وبركة الصباح",
     coverImage: "/images/book-spread.jpg",
-    description: "رحلة يومية ممتعة، كل يوم تضعين علامة صح في تقويمكِ بعد إنجاز عادة السكينة. شاهدي نور الرضا وهو يكبر في قلبكِ خطوة بخطوة.",
-    descriptionFr: "Un voyage de 30 jours avec calendrier interactif jour par jour. Cochez vos journées et cultivez la sérénité !",
-    descriptionEn: "A 30-day guided interactive calendar. Check off each day as you build lifelong habits of peace and gratitude.",
+    description: "تحدي مبارك حتى نهاية شهر نوفمبر لتثبيت صلاة الفجر في وقتها، واستشعار سكينة السحر وبركة الصباح مع قارئات غيمة. كل يوم تضعين علامة إنجاز في تقويمكِ وتتابعين مواقيت الصلاة لولايتكِ.",
+    descriptionFr: "Un défi spirituel et doux jusqu'au 30 novembre pour ancrer la prière du Fajr à l'heure, savourer la sérénité de l'aube et cultiver les habitudes du matin avec la communauté Ghayma.",
+    descriptionEn: "A soulful and uplifting challenge running until November 30 to establish Fajr prayer on time and embrace the tranquil dawn barakah alongside the Ghayma sisterhood.",
     habits: [
-      "10 دقائق قراءة صباحية مع فنجان قهوة",
-      "كتابة سطر امتنان في دفتركِ الخاص",
-      "ابتسامة لنفسكِ ودعاء من القلب"
+      "الاستيقاظ 15 دقيقة قبل أذان الفجر ⏰",
+      "صلاة ركعتي سنة الفجر (خير من الدنيا وما فيها) 🕊️",
+      "أداء فريضة الفجر في وقتها بخشوع 🤲",
+      "قراءة أذكار الصباح كاملة لنيل الحفظ والسكينة 🌸",
+      "10 دقائق قراءة في كتاب هادئ أو ورد قرآني 📖"
     ],
-    viewsCount: 1420,
-    clicksCount: 680,
-    subscribersCount: 418,
+    viewsCount: 3840,
+    clicksCount: 1950,
+    subscribersCount: 842,
     subscribers: [
-      { id: "sub-3", name: "سارة م.", wilaya: "06 - Béjaïa", joinedAt: "2026-11-15T09:00:00Z" },
-      { id: "sub-4", name: "مريم ت.", wilaya: "25 - Constantine", joinedAt: "2026-11-16T18:20:00Z" },
-      { id: "sub-5", name: "هديل ق.", wilaya: "09 - Blida", joinedAt: "2026-11-18T11:45:00Z" }
+      { id: "sub-1", name: "أمينة ب.", wilaya: "16 - Alger", joinedAt: "2026-11-02T05:15:00Z" },
+      { id: "sub-2", name: "ياسمين ك.", wilaya: "31 - Oran", joinedAt: "2026-11-03T05:30:00Z" },
+      { id: "sub-3", name: "سارة م.", wilaya: "06 - Béjaïa", joinedAt: "2026-11-05T05:00:00Z" },
+      { id: "sub-4", name: "مريم ت.", wilaya: "25 - Constantine", joinedAt: "2026-11-06T05:20:00Z" }
     ],
-    createdAt: "2026-11-01T08:00:00Z"
+    createdAt: "2026-11-01T05:00:00Z"
+  }
+];
+
+export const INITIAL_ARTICLES = [
+  {
+    id: "fajr-routine-serenite",
+    slug: "fajr-routine-serenite",
+    titleFr: "Bâtir un matin de paix : La prière du Fajr comme refuge pour l'âme",
+    titleAr: "بناء صباح يفيض بالسكينة: صلاة الفجر ملاذ الروح وسر البركة",
+    titleEn: "Building a Peaceful Morning: Fajr Prayer as a Soul's Sanctuary",
+    excerptFr: "Se réveiller à l'aube quand le monde dort encore, respirer la fraîcheur céleste et confier ses secrets au Créateur. Découvrez mon rituel matinal doux et apaisant.",
+    excerptAr: "أن تستيقظي مع تباشير الصبح والكون لا يزال نائماً، تستنشقين نفحات الرحمة وتودعين أسرارك عند الخالق. إليك طريقتي في روتين الصباح الهادئ.",
+    excerptEn: "Waking at dawn while the world sleeps, breathing celestial morning dew, and whispering prayers. Discover my gentle, grounding morning routine.",
+    contentFr: `Il y a dans les premières lueurs de l'aube un secret que seuls ceux qui se lèvent pour le Fajr peuvent ressentir. Ce n'est pas simplement un réveil matinal, c'est un rendez-vous intime avec la paix.
+
+Lorsque la cloche de l'aube sonne, le monde extérieur est encore plongé dans le silence le plus absolu. C'est à cet instant précis que l'âme se détache du bruit du monde, des notifications incessantes et des attentes des autres.
+
+Mon rituel commence toujours par les deux unités de prière de la Sunnah du Fajr, dont le Prophète ﷺ disait qu'elles valent mieux que ce bas-monde et tout ce qu'il contient. Puis, le recueillement de la prière obligatoire, suivi d'une tasse de tisane chaude ou de café parfumé à la cannelle, entourée de mes carnets d'écriture.
+
+Si vous avez du mal à vous réveiller, commencez avec douceur : préparez vos vêtements la veille, posez votre réveil loin du lit et offrez-vous ce quart d'heure de silence comme un cadeau, non comme une contrainte.`,
+    contentAr: `في سكون الفجر سرٌ لا يدركه إلا من اختار الاستيقاظ والكون لا يزال غارقاً في نومه. ليست مجرد بداية ليوم جديد، بل موعدٌ خاص تصفو فيه الروح وتلتقي بالسكينة.
+
+حين يصدح الأذان «الصلاة خير من النوم»، ينادي القلبَ نداءُ الطمأنينة. تتوضئين بماءٍ بارد ينعش العزيمة، وتسجدين في هدوءٍ يمحو كل قلق وتعب كان بالأمس.
+
+يبدأ روتيني بركعتي الفجر (السنة)، اللتين هما خيرٌ من الدنيا وما فيها. ثم ركعتا الفريضة بقلبٍ حاضر، يعقبهما دقائق من أذكار الصباح مع فنجان قهوة أو شاي دافئ وأوراقي وقلمي لكتابة مشاعر الامتنان.
+
+إذا كنتِ تجدين صعوبة في الاستيقاظ، تدرجي برفق: اخلدي للنوم مبكراً، وجهزي سجادتك ومصحفك، وتذكري أن هذه الدقائق هدية لروحك تملأ يومكِ كله بركة وتوفيقاً.`,
+    contentEn: `In the silence of dawn lies a profound secret only early risers can fathom. It is not just about waking early; it is a sacred rendezvous with inner tranquility.
+
+When the call of Fajr echoes through the quiet dawn, your soul finds a pause from the world's turbulence. Starting with the two Sunnah Rak'ats, each movement anchors you in peace and gratitude.`,
+    category: "Spiritualité & Routine",
+    categoryAr: "روحانيات وروتين",
+    author: "ghayma_rd (R.Dahmane)",
+    date: "2026-11-20",
+    readTime: "4 min",
+    coverImage: "/images/book-spread.jpg",
+    gallery: [
+      "/images/book-front.jpg",
+      "/images/book-shelf.jpeg"
+    ],
+    likesCount: 142,
+    commentsCount: 2,
+    published: true
   },
   {
-    id: "challenge-annual-reading",
-    title: "رحلة العام الأدبية: 365 يوم من السكينة والإلهام 📖",
-    titleFr: "L'Aventure Littéraire Annuelle : 365 Jours d'Inspiration 📖",
-    titleEn: "Annual Reading Journey: 365 Days of Serenity 📖",
-    type: "annual",
-    durationDays: 365,
-    startDate: new Date().toISOString().slice(0, 10),
-    endDate: new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10),
-    active: true,
-    featured: false,
-    showCountdown: false,
-    showCalendar: true,
-    badge: "ANNUEL 365 ✨",
-    category: "Reading Club & Year-Long Growth",
-    coverImage: "/images/book-shelf.jpeg",
-    description: "تحدي السنة الكاملة برفقة غيمة. تدوين، قراءة، ورفقة أدبية حنونة تمتد على مدار الفصول الأربعة.",
-    descriptionFr: "Le grand défi annuel pour les passionnées de lecture et de réflexion personnelle tout au long de l'année.",
-    descriptionEn: "A year-long companion challenge for avid readers, journalers, and dreamers with ghayma_rd.",
-    habits: [
-      "إنهاء كتاب كل شهر ومشاركة المراجعة",
-      "كتابة مذكرات نهاية كل أسبوع",
-      "مرافقة بنات مجتمع غيمة في كل موسم"
+    id: "lart-decrire-entre-les-nuages",
+    slug: "lart-decrire-entre-les-nuages",
+    titleFr: "L'art d'écrire entre les nuages : Comment mes carnets sont devenus des livres",
+    titleAr: "فن الكتابة بين الغيوم: كيف تحولت مذكراتي البسيطة إلى كتب منشورة",
+    titleEn: "The Art of Writing Among Clouds: How Personal Notebooks Became Published Books",
+    excerptFr: "Écrire n'a jamais été pour moi un travail, mais une respiration. Retour en intimité sur les étapes de création de mes romans et recueils poétiques.",
+    excerptAr: "لم تكن الكتابة بالنسبة لي يوماً مجرد كلمات، بل متنفساً حقيقياً. أشارككم هنا الرحلة الصادقة من أوراقي الخاصة إلى كتب بين أيديكم.",
+    excerptEn: "Writing was never just a craft to me, but breathing itself. An intimate journey behind the making of my books and poetry collections.",
+    contentFr: `Chaque livre commence par une idée timide notée à la hâte sur un carnet de notes ou dans les marges d'un carnet d'esquisses. Chez ghayma_rd, chaque mot est pesé pour apporter du réconfort à celles qui le lisent.
+
+J'ai toujours cru que les émotions vraies finissent toujours par trouver leur écho dans le cœur des lectrices. Quand j'écris, j'imagine une jeune femme assise près de sa fenêtre avec une tasse de thé, cherchant dans mes lignes une preuve qu'elle n'est pas seule à ressentir ce qu'elle ressent.`,
+    contentAr: `يبدأ كل كتاب بفكرة خجولة أدوّنها على عجل في دفترٍ صغير. في كتاباتي باسم ghayma_rd، أحرص على أن تكون كل كلمة بمثابة لمسة حنان لقلبٍ أرهقه الانتظار.
+
+آمنتُ دائماً بأن الصدق هو الجسر الوحيد إلى قلوب القارئات. حين أكتب، أتخيل قارئة تجلس قرب نافذتها في مساءٍ هادئ، تبحث بين سطوري عن طمأنينة تشعرها بأنها ليست وحيدة.`,
+    contentEn: `Every book begins with a tender note jotted on paper. As ghayma_rd, my goal has always been to offer words that feel like a warm comforting cloud.`,
+    category: "Parcours Littéraire",
+    categoryAr: "رحلتي الأدبية",
+    author: "ghayma_rd (R.Dahmane)",
+    date: "2026-11-15",
+    readTime: "5 min",
+    coverImage: "/images/book-front.jpg",
+    gallery: [
+      "/images/book-spread.jpg",
+      "/images/book-shelf.jpeg"
     ],
-    viewsCount: 980,
-    clicksCount: 390,
-    subscribersCount: 260,
-    subscribers: [
-      { id: "sub-6", name: "فاطمة الزهراء", wilaya: "19 - Sétif", joinedAt: "2026-11-10T12:00:00Z" }
-    ],
-    createdAt: "2026-10-25T12:00:00Z"
+    likesCount: 98,
+    commentsCount: 1,
+    published: true
+  }
+];
+
+export const INITIAL_COMMENTS = [
+  {
+    id: "com-1",
+    articleId: "fajr-routine-serenite",
+    authorName: "أميرة من العاصمة",
+    authorAvatar: "🌸",
+    content: "كلمات تلامس القلب والروح! بدأت تحدي الفجر معكم وأشعر ببركة عجيبة في يومي الحمد لله ✨",
+    createdAt: "2026-11-21T08:30:00.000Z"
+  },
+  {
+    id: "com-2",
+    articleId: "fajr-routine-serenite",
+    authorName: "Sarah (Constantine)",
+    authorAvatar: "✨",
+    content: "Magnifique article ! Le rappel sur les deux rak'ats de la Sunnah m'a tellement motivée pour demain matin inch'Allah.",
+    createdAt: "2026-11-21T10:15:00.000Z"
+  },
+  {
+    id: "com-3",
+    articleId: "lart-decrire-entre-les-nuages",
+    authorName: "نور الهدى (وهران)",
+    authorAvatar: "📖",
+    content: "كتبك كانت رفيقة لي في أصعب الأوقات.. شكراً غيمة على هذا الصدق والجمال في الحروف 💕",
+    createdAt: "2026-11-20T17:45:00.000Z"
   }
 ];
 

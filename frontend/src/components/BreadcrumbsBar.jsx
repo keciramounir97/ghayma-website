@@ -30,6 +30,17 @@ export default function BreadcrumbsBar() {
     segments.push({ label: bookTitle, to: path });
   } else if (path.startsWith("/about")) {
     segments.push({ label: t.breadcrumbs.about, to: "/about" });
+  } else if (path.startsWith("/articles")) {
+    segments.push({
+      label: lang === "ar" ? "المقالات والخواطر" : "Articles & Journal",
+      to: "/articles"
+    });
+    if (path.split("/articles/")[1]) {
+      segments.push({
+        label: lang === "ar" ? "تفاصيل المقال" : "Détails de l'article",
+        to: path
+      });
+    }
   } else if (path.startsWith("/challenges")) {
     segments.push({ label: t.breadcrumbs.challenges || "Défis Ghayma", to: "/challenges" });
   } else if (path.startsWith("/contact")) {

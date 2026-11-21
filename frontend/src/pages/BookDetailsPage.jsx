@@ -13,7 +13,13 @@ import {
 } from "lucide-react";
 import { useAppContext } from "../context/AppContext.jsx";
 import { INITIAL_BOOKS } from "../data/initialData.js";
-import { WILAYAS_69 } from "../data/wilayas.js";
+import {
+  WILAYAS_69,
+  searchCommunes,
+  getCommunesByWilaya,
+  getDairasByWilaya,
+  getWilayaById
+} from "../data/algeriaGeo.js";
 import { createOrder } from "../firebase.js";
 
 export default function BookDetailsPage() {
@@ -54,12 +60,41 @@ export default function BookDetailsPage() {
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [selectedWilayaCode, setSelectedWilayaCode] = useState("16");
-  const [baladiya, setBaladiya] = useState("");
+  const [daira, setDaira] = useState("Hussein Dey");
+  const [baladiya, setBaladiya] = useState("Hussein Dey");
+  const [postCode, setPostCode] = useState("16017");
+  const [communeSuggestions, setCommuneSuggestions] = useState([]);
+  const [autoFillNotice, setAutoFillNotice] = useState("");
   const [address, setAddress] = useState("");
   const [deliveryType, setDeliveryType] = useState("home");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [orderDone, setOrderDone] = useState(null);
+
+  const handleCommuneInput = (val) => {
+    setBaladiya(val);
+    if (!val || val.trim().length < 2) {
+      setCommuneSuggestions([]);
+      return;
+    }
+    const matches = searchCommunes(val, 8);
+    setCommuneSuggestions(matches);
+  };
+
+  const handleSelectCommune = (item) => {
+    const communeName = lang === "ar" ? item.nameAr || item.nameFr : item.nameFr;
+    const dairaName = lang === "ar" ? item.dairaAr || item.dairaFr : item.dairaFr;
+    setBaladiya(communeName);
+    setDaira(dairaName);
+    setPostCode(item.postCode || "");
+    setSelectedWilayaCode(item.wilayaCode);
+    setCommuneSuggestions([]);
+    setAutoFillNotice(
+      lang === "ar"
+        ? `✓ تم التحديد التلقائي: ولاية ${item.wilayaNameAr} (${item.wilayaCode}) • دائرة ${dairaName}`
+        : `✓ Rempli automatiquement : ${item.wilayaNameFr} (${item.wilayaCode}) • Daïra : ${dairaName}`
+    );
+  };
 
   useEffect(() => {
     setSelectedBookId(book.id);
@@ -115,7 +150,9 @@ export default function BookDetailsPage() {
         wilayaNameFr: selectedWilaya.nameFr,
         wilayaNameAr: selectedWilaya.nameAr,
         wilayaLabel: `${selectedWilaya.code} - ${selectedWilaya.nameFr} (${selectedWilaya.nameAr})`,
+        daira: daira.trim(),
         baladiya: baladiya.trim(),
+        postCode: postCode.trim(),
         address: address.trim(),
         deliveryMethod: deliveryEnabled ? deliveryType : "standard",
         deliveryMethodLabel: deliveryEnabled
@@ -500,56 +537,133 @@ export default function BookDetailsPage() {
                 </div>
               </div>
 
-              {/* 69 Wilayas Selector & Baladiya */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold mb-2">
-                    {t.orderForm.wilaya} *
-                  </label>
-                  <select
-                    value={selectedWilayaCode}
-                    onChange={(e) => {
-                      setSelectedWilayaCode(e.target.value);
-                      setBaladiya("");
-                    }}
-                    className={`w-full px-4 py-3 rounded-2xl border text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-rose-500 ${
-                      dark
-                        ? "bg-[#25172e] border-rose-900/60 text-white"
-                        : "bg-white border-rose-200 text-slate-800"
-                    }`}
-                  >
-                    {wilayas
-                      .filter((w) => w.active !== false)
-                      .map((w) => (
-                        <option key={w.code} value={w.code}>
-                          {w.code} - {w.nameFr} ({w.nameAr})
-                        </option>
-                      ))}
-                  </select>
-                </div>
+              {/* Dynamic 69 Wilayas, Daïra & Commune Selector with Instant Auto-Fill */}
+              <div className="space-y-4">
+                {autoFillNotice && (
+                  <div className="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center justify-between gap-2 animate-in fade-in">
+                    <span className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
+                      <span>{autoFillNotice}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setAutoFillNotice("")}
+                      className="text-xs opacity-60 hover:opacity-100"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
 
-                <div>
-                  <label className="block text-xs font-bold mb-2">
-                    {t.orderForm.baladiya} *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    list="communes-list"
-                    value={baladiya}
-                    onChange={(e) => setBaladiya(e.target.value)}
-                    placeholder={t.orderForm.baladiyaPlaceholder}
-                    className={`w-full px-4 py-3 rounded-2xl border text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 ${
-                      dark
-                        ? "bg-[#25172e] border-rose-900/60 text-white"
-                        : "bg-white border-rose-200 text-slate-800"
-                    }`}
-                  />
-                  <datalist id="communes-list">
-                    {(selectedWilaya?.communes || []).map((c) => (
-                      <option key={c} value={c} />
-                    ))}
-                  </datalist>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Wilaya Selector */}
+                  <div>
+                    <label className="block text-xs font-bold mb-1.5">
+                      {t.orderForm.wilaya} (69) *
+                    </label>
+                    <select
+                      value={selectedWilayaCode}
+                      onChange={(e) => {
+                        setSelectedWilayaCode(e.target.value);
+                        setAutoFillNotice("");
+                      }}
+                      className={`w-full px-3.5 py-3 rounded-2xl border text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-rose-500 ${
+                        dark
+                          ? "bg-[#25172e] border-rose-900/60 text-white"
+                          : "bg-white border-rose-200 text-slate-800"
+                      }`}
+                    >
+                      {wilayas
+                        .filter((w) => w.active !== false)
+                        .map((w) => (
+                          <option key={w.code} value={w.code}>
+                            {w.code} - {w.nameFr} ({w.nameAr})
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+
+                  {/* Daïra (Auto-filled / Dynamic) */}
+                  <div>
+                    <label className="block text-xs font-bold mb-1.5">
+                      {lang === "ar" ? "الدائرة (Daïra) *" : "Daïra *"}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={daira}
+                      onChange={(e) => setDaira(e.target.value)}
+                      placeholder={lang === "ar" ? "مثال: حسين داي" : "Ex: Hussein Dey"}
+                      className={`w-full px-3.5 py-3 rounded-2xl border text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 ${
+                        dark
+                          ? "bg-[#25172e] border-rose-900/60 text-white"
+                          : "bg-white border-rose-200 text-slate-800"
+                      }`}
+                    />
+                  </div>
+
+                  {/* Commune / Baladiya with Instant Auto-complete */}
+                  <div className="relative">
+                    <label className="block text-xs font-bold mb-1.5">
+                      {t.orderForm.baladiya} *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={baladiya}
+                      onChange={(e) => handleCommuneInput(e.target.value)}
+                      placeholder={
+                        lang === "ar"
+                          ? "اكتبي البلدية (مثلاً: حسين داي)"
+                          : "Tapez votre commune (ex: Hussein Dey)..."
+                      }
+                      className={`w-full px-3.5 py-3 rounded-2xl border text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 ${
+                        dark
+                          ? "bg-[#25172e] border-rose-900/60 text-white"
+                          : "bg-white border-rose-200 text-slate-800"
+                      }`}
+                    />
+
+                    {/* Interactive Dropdown Suggestions */}
+                    {communeSuggestions.length > 0 && (
+                      <div
+                        className={`absolute z-30 left-0 right-0 mt-1.5 max-h-56 overflow-y-auto rounded-2xl border shadow-2xl p-1.5 space-y-1 ${
+                          dark
+                            ? "bg-[#1f1326] border-rose-900/80 text-rose-50"
+                            : "bg-white border-rose-200 text-slate-800"
+                        }`}
+                      >
+                        <div className="px-2.5 py-1 text-[10px] font-bold text-rose-500 uppercase tracking-wider">
+                          {lang === "ar"
+                            ? "اضغطي لملء الولاية والدائرة تلقائياً:"
+                            : "Cliquez pour remplir automatiquement :"}
+                        </div>
+                        {communeSuggestions.map((item) => (
+                          <div
+                            key={item.id}
+                            onClick={() => handleSelectCommune(item)}
+                            className={`p-2.5 rounded-xl text-xs cursor-pointer transition-colors flex items-center justify-between ${
+                              dark
+                                ? "hover:bg-rose-950/60 text-rose-100"
+                                : "hover:bg-rose-50 text-slate-800"
+                            }`}
+                          >
+                            <div>
+                              <span className="font-extrabold text-rose-600 dark:text-rose-400">
+                                {item.nameFr} ({item.nameAr})
+                              </span>
+                              <div className="text-[11px] opacity-70">
+                                Daïra: {item.dairaFr} ({item.dairaAr})
+                              </div>
+                            </div>
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-500/15 text-rose-500">
+                              {item.wilayaCode} - {item.wilayaNameFr}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

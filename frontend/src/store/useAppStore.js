@@ -5,14 +5,26 @@ import {
   INITIAL_HOME,
   INITIAL_FOOTER,
   INITIAL_CHALLENGES,
-  INITIAL_POSTS
+  INITIAL_POSTS,
+  INITIAL_ARTICLES
 } from "../data/initialData.js";
 import { WILAYAS_69 } from "../data/wilayas.js";
 import { TRANSLATIONS } from "../data/i18n.js";
 
+const getSavedUser = () => {
+  try {
+    const raw = localStorage.getItem("ghayma_user");
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    return null;
+  }
+};
+
 export const useAppStore = create((set, get) => ({
   lang: localStorage.getItem("ghayma_lang") || "ar",
   dark: localStorage.getItem("ghayma_theme") === "dark",
+  currentUser: getSavedUser(),
+  authModalOpen: false,
   books: INITIAL_BOOKS,
   about: INITIAL_ABOUT,
   homeContent: INITIAL_HOME,
@@ -21,6 +33,7 @@ export const useAppStore = create((set, get) => ({
   deliveryEnabled: false, // Deactivated by default until admin checks it in settings
   challenges: INITIAL_CHALLENGES,
   challengePosts: INITIAL_POSTS,
+  articles: INITIAL_ARTICLES,
   analytics: { totalVisits: 3120, challengeClicks: 1460, challengeSubscribers: 820, activeVisitors: 14 },
   drawerOpen: false,
   notifOpen: false,
@@ -35,6 +48,27 @@ export const useAppStore = create((set, get) => ({
       unread: true
     }
   ],
+
+  setAuthModalOpen: (authModalOpen) => set({ authModalOpen }),
+
+  loginUser: (user) => {
+    localStorage.setItem("ghayma_user", JSON.stringify(user));
+    set({ currentUser: user, authModalOpen: false });
+  },
+
+  registerUser: (user) => {
+    localStorage.setItem("ghayma_user", JSON.stringify(user));
+    set({ currentUser: user, authModalOpen: false });
+  },
+
+  logoutUser: () => {
+    localStorage.removeItem("ghayma_user");
+    set({ currentUser: null });
+  },
+
+  removeToast: (id) => {
+    set((state) => ({ toasts: state.toasts.filter((item) => item.id !== id) }));
+  },
 
   setLang: (lang) => {
     localStorage.setItem("ghayma_lang", lang);
@@ -65,6 +99,7 @@ export const useAppStore = create((set, get) => ({
   setDeliveryEnabled: (deliveryEnabled) => set({ deliveryEnabled }),
   setChallenges: (challenges) => set({ challenges }),
   setChallengePosts: (challengePosts) => set({ challengePosts }),
+  setArticles: (articles) => set({ articles }),
   setAnalytics: (analytics) => set({ analytics }),
 
   addToast: (message, type = "success") => {

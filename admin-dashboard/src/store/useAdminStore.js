@@ -39,6 +39,8 @@ export const useAdminStore = create((set, get) => ({
   deliveryEnabled: false, // Deactivated by default until admin checks it in settings
   challenges: INITIAL_CHALLENGES,
   challengePosts: INITIAL_POSTS,
+  articles: INITIAL_ARTICLES,
+  articleComments: INITIAL_COMMENTS,
   analytics: { totalVisits: 3120, challengeClicks: 1460, challengeSubscribers: 820, activeVisitors: 14 },
 
   // Interactive Ticket Modals State
@@ -47,6 +49,7 @@ export const useAdminStore = create((set, get) => ({
   selectedWilayaTicket: null,
   selectedChallenge: null,
   selectedPost: null,
+  selectedArticle: null,
 
   setLang: (lang) => {
     localStorage.setItem("ghayma_admin_lang", lang);
@@ -106,13 +109,20 @@ export const useAdminStore = create((set, get) => ({
   setDeliveryEnabled: (deliveryEnabled) => set({ deliveryEnabled }),
   setChallenges: (challenges) => set({ challenges }),
   setChallengePosts: (challengePosts) => set({ challengePosts }),
+  setArticles: (articles) => set({ articles }),
+  setArticleComments: (articleComments) => set({ articleComments }),
   setAnalytics: (analytics) => set({ analytics }),
   setSelectedChallenge: (selectedChallenge) => set({ selectedChallenge }),
   setSelectedPost: (selectedPost) => set({ selectedPost }),
+  setSelectedArticle: (selectedArticle) => set({ selectedArticle }),
 
   setSelectedOrderTicket: (selectedOrderTicket) => set({ selectedOrderTicket }),
   setSelectedMessageTicket: (selectedMessageTicket) => set({ selectedMessageTicket }),
   setSelectedWilayaTicket: (selectedWilayaTicket) => set({ selectedWilayaTicket }),
+
+  removeToast: (id) => {
+    set((state) => ({ toasts: state.toasts.filter((item) => item.id !== id) }));
+  },
 
   addToast: (message, type = "success") => {
     const id = Date.now() + Math.random();

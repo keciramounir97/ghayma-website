@@ -13,7 +13,9 @@ import {
   setDeliveryEnabledInFirestore,
   subscribeChallenges,
   subscribeChallengePosts,
-  subscribeAnalytics
+  subscribeAnalytics,
+  subscribeArticles,
+  subscribeArticleComments
 } from "../firebase.js";
 import { ADMIN_TRANSLATIONS } from "../data/i18n.js";
 
@@ -34,6 +36,8 @@ export function AdminProvider({ children }) {
     setDeliveryEnabled,
     setChallenges,
     setChallengePosts,
+    setArticles,
+    setArticleComments,
     setAnalytics,
     addToast
   } = store;
@@ -60,6 +64,8 @@ export function AdminProvider({ children }) {
     const unsubFooter = subscribeFooter(setFooterContent);
     const unsubChallenges = subscribeChallenges(setChallenges);
     const unsubPosts = subscribeChallengePosts(setChallengePosts);
+    const unsubArticles = subscribeArticles(setArticles);
+    const unsubComments = subscribeArticleComments(setArticleComments);
     const unsubAnalytics = subscribeAnalytics(setAnalytics);
     const unsubDelivery = subscribeDeliverySettings((deliv) => {
       setDeliveryEnabled(deliv.deliveryEnabled);
@@ -74,6 +80,8 @@ export function AdminProvider({ children }) {
       unsubFooter && unsubFooter();
       unsubChallenges && unsubChallenges();
       unsubPosts && unsubPosts();
+      unsubArticles && unsubArticles();
+      unsubComments && unsubComments();
       unsubAnalytics && unsubAnalytics();
       unsubDelivery && unsubDelivery();
     };
@@ -88,6 +96,8 @@ export function AdminProvider({ children }) {
     setDeliveryEnabled,
     setChallenges,
     setChallengePosts,
+    setArticles,
+    setArticleComments,
     setAnalytics
   ]);
 

@@ -20,7 +20,9 @@ import {
   Mail,
   ChevronRight,
   ChevronLeft,
-  Globe
+  Globe,
+  User,
+  LogOut
 } from "lucide-react";
 import { useAppContext } from "../context/AppContext.jsx";
 import GhaymaLogo from "./GhaymaLogo.jsx";
@@ -42,6 +44,9 @@ export default function Navbar() {
     notifications,
     markAllNotificationsRead,
     clearNotifications,
+    currentUser,
+    setAuthModalOpen,
+    logoutUser,
     addToast
   } = useAppContext();
 
@@ -53,6 +58,11 @@ export default function Navbar() {
   const navLinks = [
     { to: "/", label: t.nav.home, icon: HomeIcon },
     { to: "/books", label: t.nav.books, icon: BookOpen },
+    {
+      to: "/articles",
+      label: lang === "ar" ? "المقالات والخواطر" : lang === "fr" ? "Articles" : "Articles",
+      icon: Feather
+    },
     { to: "/challenges", label: t.nav.challenges, icon: Sparkles },
     { to: "/about", label: t.nav.about, icon: Feather },
     { to: "/contact", label: t.nav.contact, icon: Mail }
@@ -304,6 +314,35 @@ export default function Navbar() {
               )}
             </div>
 
+            {/* User Account / Login Button */}
+            {currentUser ? (
+              <div className="flex items-center gap-1.5 p-1 rounded-full border border-rose-500/25 bg-rose-500/10">
+                <span className="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center text-sm font-bold shadow-xs">
+                  {currentUser.avatar || "🌸"}
+                </span>
+                <span className="text-xs font-bold text-slate-800 dark:text-rose-100 hidden md:inline px-1">
+                  {currentUser.name}
+                </span>
+                <button
+                  type="button"
+                  onClick={logoutUser}
+                  title="Se déconnecter"
+                  className="p-1.5 rounded-full text-rose-500 hover:bg-rose-500/20 transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setAuthModalOpen(true)}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-rose-500/30 text-rose-600 dark:text-rose-300 hover:bg-rose-500 hover:text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+              >
+                <User className="w-3.5 h-3.5" />
+                <span>{lang === "ar" ? "حسابي / دخول" : "Espace Membre"}</span>
+              </button>
+            )}
+
             {/* Order CTA Button */}
             <Link
               to={`/book/${books[0]?.id || "hayati-baada-arrida"}`}
@@ -386,6 +425,56 @@ export default function Navbar() {
             </div>
 
             <Divider sx={{ borderColor: "rgba(244,63,94,0.15)" }} />
+
+            {/* Mobile Member Profile / Login */}
+            {currentUser ? (
+              <div
+                className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 ${
+                  dark ? "bg-[#21142b] border-rose-900/50" : "bg-white border-rose-200"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="w-10 h-10 rounded-2xl bg-rose-500 text-white flex items-center justify-center text-lg font-bold shadow-sm">
+                    {currentUser.avatar || "🌸"}
+                  </span>
+                  <div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-rose-50">
+                      {currentUser.name}
+                    </div>
+                    <div className="text-[10px] text-rose-500 font-semibold">
+                      {lang === "ar" ? "عضوة في مجتمع غيمة ✨" : "Membre Ghayma ✨"}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    logoutUser();
+                    setDrawerOpen(false);
+                  }}
+                  className="p-2 rounded-xl text-rose-500 hover:bg-rose-500/15 transition-colors cursor-pointer"
+                  title="Déconnexion"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setDrawerOpen(false);
+                  setAuthModalOpen(true);
+                }}
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-rose-500/15 via-pink-500/15 to-amber-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-300 font-bold text-xs flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+              >
+                <User className="w-4 h-4 text-rose-500" />
+                <span>
+                  {lang === "ar"
+                    ? "تسجيل الدخول / إنشاء حساب جديد 🌸"
+                    : "Connexion / Créer un Compte 🌸"}
+                </span>
+              </button>
+            )}
 
             {/* Dedicated Mobile Theme & Language Settings Box inside Hamburger Sidebar */}
             <div

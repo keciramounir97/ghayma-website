@@ -17,7 +17,9 @@ import {
   INITIAL_HOME,
   INITIAL_FOOTER,
   INITIAL_CHALLENGES,
-  INITIAL_POSTS
+  INITIAL_POSTS,
+  INITIAL_ARTICLES,
+  INITIAL_COMMENTS
 } from "./data/initialData.js";
 import { WILAYAS_69 } from "./data/wilayas.js";
 
@@ -532,4 +534,66 @@ export function subscribeAnalytics(callback) {
     },
     () => callback({ totalVisits: 3120, challengeClicks: 1460, challengeSubscribers: 820, activeVisitors: 14 })
   );
+}
+
+export function subscribeArticles(callback) {
+  return onSnapshot(
+    collection(storeDb, "articles"),
+    (snapshot) => {
+      if (snapshot.empty) {
+        callback(INITIAL_ARTICLES);
+      } else {
+        const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        callback(list);
+      }
+    },
+    (err) => {
+      console.warn("Admin articles sub error:", err);
+      callback(INITIAL_ARTICLES);
+    }
+  );
+}
+
+export async function saveArticleToFirestore(articleData) {
+  const id = articleData.id || "art-" + Date.now();
+  const payload = {
+    ...articleData,
+    id,
+    author: articleData.author || "ghayma_rd (R.Dahmane)",
+    likesCount: Number(articleData.likesCount) || 0,
+    commentsCount: Number(articleData.commentsCount) || 0,
+    published: articleData.published !== false,
+    updatedAt: new Date().toISOString()
+  };
+  await setDoc(doc(storeDb, "articles", id), payload);
+  await setDoc(doc(adminDb, "articles", id), payload).catch(() => {});
+  return payload;
+}
+
+export async function deleteArticleFromFirestore(id) {
+  await deleteDoc(doc(storeDb, "articles", id));
+  await deleteDoc(doc(adminDb, "articles", id)).catch(() => {});
+}
+
+export function subscribeArticleComments(callback) {
+  return onSnapshot(
+    collection(storeDb, "article_comments"),
+    (snapshot) => {
+      if (snapshot.empty) {
+        callback(INITIAL_COMMENTS);
+      } else {
+        const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        callback(list);
+      }
+    },
+    (err) => {
+      console.warn("Comments sub error:", err);
+      callback(INITIAL_COMMENTS);
+    }
+  );
+}
+
+export async function deleteArticleComment(commentId) {
+  await deleteDoc(doc(storeDb, "article_comments", commentId));
+  await deleteDoc(doc(adminDb, "article_comments", commentId)).catch(() => {});
 }
