@@ -1,0 +1,125 @@
+import React, { createContext, useContext, useEffect, useMemo } from "react";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { useAppStore } from "../store/useAppStore.js";
+import {
+  ensureSeedData,
+  subscribeBooks,
+  subscribeAbout,
+  subscribeHome,
+  subscribeFooter,
+  subscribeDeliverySettings
+} from "../firebase.js";
+import { TRANSLATIONS } from "../data/i18n.js";
+
+const AppContext = createContext(null);
+
+export function AppProvider({ children }) {
+  const store = useAppStore();
+  const {
+    lang,
+    dark,
+    setBooks,
+    setAbout,
+    setHomeContent,
+    setFooterContent,
+    setWilayas,
+    setDeliveryEnabled
+  } = store;
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ar;
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = t.dir;
+    if (dark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [lang, dark, t.dir]);
+
+  useEffect(() => {
+    ensureSeedData();
+    const unsubBooks = subscribeBooks(setBooks);
+    const unsubAbout = subscribeAbout(setAbout);
+    const unsubHome = subscribeHome(setHomeContent);
+    const unsubFooter = subscribeFooter(setFooterContent);
+    const unsubDelivery = subscribeDeliverySettings((deliv) => {
+      setDeliveryEnabled(deliv.deliveryEnabled);
+      setWilayas(deliv.wilayas);
+    });
+    return () => {
+      unsubBooks && unsubBooks();
+      unsubAbout && unsubAbout();
+      unsubHome && unsubHome();
+      unsubFooter && unsubFooter();
+      unsubDelivery && unsubDelivery();
+    };
+  }, [
+    setBooks,
+    setAbout,
+    setHomeContent,
+    setFooterContent,
+    setWilayas,
+    setDeliveryEnabled
+  ]);
+
+  const formatDzd = (amount) => {
+    const num = Number(amount) || 0;
+    return `${num.toLocaleString()} ${t.currency}`;
+  };
+
+  const muiTheme = useMemo(
+    () =>
+      createTheme({
+        direction: t.dir,
+        palette: {
+          mode: dark ? "dark" : "light",
+          primary: {
+            main: "#f43f5e",
+            light: "#fb7185",
+            dark: "#e11d48"
+          },
+          secondary: {
+            main: "#f59e0b"
+          },
+          background: {
+            default: dark ? "#120b16" : "#fffafb",
+            paper: dark ? "#1a1121" : "#ffffff"
+          }
+        },
+        shape: {
+          borderRadius: 18
+        },
+        typography: {
+          fontFamily:
+            t.dir === "rtl"
+              ? "'Tajawal', sans-serif"
+              : "'Plus Jakarta Sans', sans-serif"
+        }
+      }),
+    [dark, t.dir]
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      ...store,
+      t,
+      formatDzd
+    }),
+    [store, t]
+  );
+
+  return (
+    <AppContext.Provider value={contextValue}>
+      <ThemeProvider theme={muiTheme}>{children}</ThemeProvider>
+    </AppContext.Provider>
+  );
+}
+
+export function useAppContext() {
+  const ctx = useContext(AppContext);
+  if (!ctx) {
+    throw new Error("useAppContext must be used inside AppProvider");
+  }
+  return ctx;
+}

@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --font-ar: 'Tajawal', sans-serif;
+    --font-serif-ar: 'Amiri', serif;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+    --font-serif: 'Cormorant Garamond', serif;
+  }
+
+  html[dir="rtl"] body {
+    font-family: var(--font-ar);
+  }
+
+  html[dir="ltr"] body {
+    font-family: var(--font-sans);
+  }
+}
+
+.font-editorial {
+  font-family: 'Cormorant Garamond', 'Amiri', serif;
+}
+
+.book-3d-shadow {
+  box-shadow:
+    -15px 20px 38px rgba(136, 19, 55, 0.22),
+    -4px 6px 12px rgba(0, 0, 0, 0.12);
+}
+
+.dark .book-3d-shadow {
+  box-shadow:
+    -15px 20px 42px rgba(244, 63, 94, 0.18),
+    -4px 6px 16px rgba(0, 0, 0, 0.55);
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float {
+  animation: floatSlow 5s ease-in-out infinite;
+}
