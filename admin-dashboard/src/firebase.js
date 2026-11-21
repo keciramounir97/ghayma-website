@@ -15,7 +15,9 @@ import {
   INITIAL_BOOKS,
   INITIAL_ABOUT,
   INITIAL_HOME,
-  INITIAL_FOOTER
+  INITIAL_FOOTER,
+  INITIAL_CHALLENGES,
+  INITIAL_POSTS
 } from "./data/initialData.js";
 import { WILAYAS_69 } from "./data/wilayas.js";
 
@@ -59,7 +61,7 @@ export const storeDb = getFirestore(storeApp);
 export const DEFAULT_ADMIN = {
   email: "ghaymard@admin.dz",
   password: "adminghaymard",
-  name: "Roumeyssa Dahmane (@ghayma_rd)",
+  name: "ghayma_rd (R.Dahmane) (@ghayma_rd)",
   role: "super_admin"
 };
 
@@ -117,6 +119,39 @@ export async function ensureAdminAndSeedData() {
       };
       await setDoc(delivRef, initialDelivery);
       await setDoc(doc(adminDb, "settings", "delivery"), initialDelivery).catch(() => {});
+    }
+
+    // Seed Ghayma Challenges
+    const challengesSnap = await getDocs(collection(storeDb, "challenges"));
+    if (challengesSnap.empty) {
+      for (const ch of INITIAL_CHALLENGES) {
+        await setDoc(doc(storeDb, "challenges", ch.id), ch);
+        await setDoc(doc(adminDb, "challenges", ch.id), ch).catch(() => {});
+      }
+    }
+
+    // Seed Challenge Posts / Pinterest Blog
+    const postsSnap = await getDocs(collection(storeDb, "challenge_posts"));
+    if (postsSnap.empty) {
+      for (const p of INITIAL_POSTS) {
+        await setDoc(doc(storeDb, "challenge_posts", p.id), p);
+        await setDoc(doc(adminDb, "challenge_posts", p.id), p).catch(() => {});
+      }
+    }
+
+    // Seed Analytics Overview
+    const analyticsRef = doc(storeDb, "analytics", "overview");
+    const analyticsSnap = await getDoc(analyticsRef);
+    if (!analyticsSnap.exists()) {
+      const initialStats = {
+        totalVisits: 3120,
+        challengeClicks: 1460,
+        challengeSubscribers: 820,
+        activeVisitors: 14,
+        updatedAt: new Date().toISOString()
+      };
+      await setDoc(analyticsRef, initialStats);
+      await setDoc(doc(adminDb, "analytics", "overview"), initialStats).catch(() => {});
     }
   } catch (err) {
     console.warn("Admin seed warning:", err);
@@ -409,4 +444,92 @@ export function compressImageFile(file, maxWidth = 720, quality = 0.82) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+export function subscribeChallenges(callback) {
+  return onSnapshot(
+    collection(storeDb, "challenges"),
+    (snap) => {
+      if (snap.empty) {
+        callback(INITIAL_CHALLENGES);
+      } else {
+        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        callback(list);
+      }
+    },
+    () => callback(INITIAL_CHALLENGES)
+  );
+}
+
+export async function saveChallengeToFirestore(challengeData) {
+  const id = challengeData.id || "challenge-" + Date.now();
+  const payload = {
+    ...challengeData,
+    id,
+    viewsCount: Number(challengeData.viewsCount) || 0,
+    clicksCount: Number(challengeData.clicksCount) || 0,
+    subscribersCount: Array.isArray(challengeData.subscribers)
+      ? challengeData.subscribers.length
+      : Number(challengeData.subscribersCount) || 0,
+    subscribers: Array.isArray(challengeData.subscribers) ? challengeData.subscribers : [],
+    updatedAt: new Date().toISOString()
+  };
+  await setDoc(doc(storeDb, "challenges", id), payload);
+  await setDoc(doc(adminDb, "challenges", id), payload).catch(() => {});
+  return payload;
+}
+
+export async function deleteChallengeFromFirestore(id) {
+  await deleteDoc(doc(storeDb, "challenges", id));
+  await deleteDoc(doc(adminDb, "challenges", id)).catch(() => {});
+}
+
+export function subscribeChallengePosts(callback) {
+  return onSnapshot(
+    collection(storeDb, "challenge_posts"),
+    (snap) => {
+      if (snap.empty) {
+        callback(INITIAL_POSTS);
+      } else {
+        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        callback(list);
+      }
+    },
+    () => callback(INITIAL_POSTS)
+  );
+}
+
+export async function savePostToFirestore(postData) {
+  const id = postData.id || "post-" + Date.now();
+  const payload = {
+    ...postData,
+    id,
+    authorName: postData.authorName || "ghayma_rd (R.Dahmane)",
+    likesCount: Number(postData.likesCount) || 0,
+    sparksCount: Number(postData.sparksCount) || 0,
+    updatedAt: new Date().toISOString()
+  };
+  await setDoc(doc(storeDb, "challenge_posts", id), payload);
+  await setDoc(doc(adminDb, "challenge_posts", id), payload).catch(() => {});
+  return payload;
+}
+
+export async function deletePostFromFirestore(id) {
+  await deleteDoc(doc(storeDb, "challenge_posts", id));
+  await deleteDoc(doc(adminDb, "challenge_posts", id)).catch(() => {});
+}
+
+export function subscribeAnalytics(callback) {
+  return onSnapshot(
+    doc(storeDb, "analytics", "overview"),
+    (snap) => {
+      if (snap.exists()) {
+        callback(snap.data());
+      } else {
+        callback({ totalVisits: 3120, challengeClicks: 1460, challengeSubscribers: 820, activeVisitors: 14 });
+      }
+    },
+    () => callback({ totalVisits: 3120, challengeClicks: 1460, challengeSubscribers: 820, activeVisitors: 14 })
+  );
 }

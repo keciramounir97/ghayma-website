@@ -14,6 +14,7 @@ import AboutEditorPage from "./pages/AboutEditorPage.jsx";
 import HomeSectionsEditorPage from "./pages/HomeSectionsEditorPage.jsx";
 import FooterEditorPage from "./pages/FooterEditorPage.jsx";
 import MessagesPage from "./pages/MessagesPage.jsx";
+import ChallengesAdminPage from "./pages/ChallengesAdminPage.jsx";
 
 export default function App() {
   return (
@@ -66,6 +67,16 @@ export default function App() {
             <ProtectedRoute>
               <AdminLayout>
                 <SettingsPage />
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/challenges"
+          element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <ChallengesAdminPage />
               </AdminLayout>
             </ProtectedRoute>
           }

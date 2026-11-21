@@ -3,7 +3,9 @@ import {
   INITIAL_BOOKS,
   INITIAL_ABOUT,
   INITIAL_HOME,
-  INITIAL_FOOTER
+  INITIAL_FOOTER,
+  INITIAL_CHALLENGES,
+  INITIAL_POSTS
 } from "../data/initialData.js";
 import { WILAYAS_69 } from "../data/wilayas.js";
 import { TRANSLATIONS } from "../data/i18n.js";
@@ -17,15 +19,18 @@ export const useAppStore = create((set, get) => ({
   footerContent: INITIAL_FOOTER,
   wilayas: WILAYAS_69,
   deliveryEnabled: false, // Deactivated by default until admin checks it in settings
+  challenges: INITIAL_CHALLENGES,
+  challengePosts: INITIAL_POSTS,
+  analytics: { totalVisits: 3120, challengeClicks: 1460, challengeSubscribers: 820, activeVisitors: 14 },
   drawerOpen: false,
   notifOpen: false,
   toasts: [],
   notifications: [
     {
       id: "welcome-1",
-      textAr: "مرحبًا بكِ في الموقع الرسمي للكاتبة رميساء دحمان (@ghayma_rd) 🌸",
-      textFr: "Bienvenue sur le site officiel de l'écrivaine Roumeyssa Dahmane (@ghayma_rd) 🌸",
-      textEn: "Welcome to the official website of author Roumeyssa Dahmane (@ghayma_rd) 🌸",
+      textAr: "مرحبًا بكِ في الموقع الرسمي للكاتبة ghayma_rd (ر. دحمان) (@ghayma_rd) 🌸",
+      textFr: "Bienvenue sur le site officiel de l'ghayma_rd (R.Dahmane) (@ghayma_rd) 🌸",
+      textEn: "Welcome to the official website of ghayma_rd (R.Dahmane) (@ghayma_rd) 🌸",
       time: "الآن • Now",
       unread: true
     }
@@ -58,6 +63,9 @@ export const useAppStore = create((set, get) => ({
   setFooterContent: (footerContent) => set({ footerContent }),
   setWilayas: (wilayas) => set({ wilayas }),
   setDeliveryEnabled: (deliveryEnabled) => set({ deliveryEnabled }),
+  setChallenges: (challenges) => set({ challenges }),
+  setChallengePosts: (challengePosts) => set({ challengePosts }),
+  setAnalytics: (analytics) => set({ analytics }),
 
   addToast: (message, type = "success") => {
     const id = Date.now() + Math.random();

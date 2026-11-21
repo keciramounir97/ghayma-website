@@ -10,7 +10,10 @@ import {
   subscribeHome,
   subscribeFooter,
   subscribeDeliverySettings,
-  setDeliveryEnabledInFirestore
+  setDeliveryEnabledInFirestore,
+  subscribeChallenges,
+  subscribeChallengePosts,
+  subscribeAnalytics
 } from "../firebase.js";
 import { ADMIN_TRANSLATIONS } from "../data/i18n.js";
 
@@ -29,6 +32,9 @@ export function AdminProvider({ children }) {
     setFooterContent,
     setWilayas,
     setDeliveryEnabled,
+    setChallenges,
+    setChallengePosts,
+    setAnalytics,
     addToast
   } = store;
 
@@ -52,6 +58,9 @@ export function AdminProvider({ children }) {
     const unsubAbout = subscribeAbout(setAbout);
     const unsubHome = subscribeHome(setHomeContent);
     const unsubFooter = subscribeFooter(setFooterContent);
+    const unsubChallenges = subscribeChallenges(setChallenges);
+    const unsubPosts = subscribeChallengePosts(setChallengePosts);
+    const unsubAnalytics = subscribeAnalytics(setAnalytics);
     const unsubDelivery = subscribeDeliverySettings((deliv) => {
       setDeliveryEnabled(deliv.deliveryEnabled);
       setWilayas(deliv.wilayas);
@@ -63,6 +72,9 @@ export function AdminProvider({ children }) {
       unsubAbout && unsubAbout();
       unsubHome && unsubHome();
       unsubFooter && unsubFooter();
+      unsubChallenges && unsubChallenges();
+      unsubPosts && unsubPosts();
+      unsubAnalytics && unsubAnalytics();
       unsubDelivery && unsubDelivery();
     };
   }, [
@@ -73,7 +85,10 @@ export function AdminProvider({ children }) {
     setHomeContent,
     setFooterContent,
     setWilayas,
-    setDeliveryEnabled
+    setDeliveryEnabled,
+    setChallenges,
+    setChallengePosts,
+    setAnalytics
   ]);
 
   const toggleDeliveryEnabled = async () => {

@@ -10,6 +10,7 @@ import BooksCatalogPage from "./pages/BooksCatalogPage.jsx";
 import BookDetailsPage from "./pages/BookDetailsPage.jsx";
 import AboutAuthorPage from "./pages/AboutAuthorPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
+import GhaymaChallengesPage from "./pages/GhaymaChallengesPage.jsx";
 
 function FrontendShell() {
   const { t, dark, setDrawerOpen, setNotifOpen } = useAppContext();
@@ -36,6 +37,7 @@ function FrontendShell() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/books" element={<BooksCatalogPage />} />
+          <Route path="/challenges" element={<GhaymaChallengesPage />} />
           <Route path="/book/:id" element={<BookDetailsPage />} />
           <Route path="/about" element={<AboutAuthorPage />} />
           <Route path="/contact" element={<ContactPage />} />

@@ -7,7 +7,11 @@ import {
   subscribeAbout,
   subscribeHome,
   subscribeFooter,
-  subscribeDeliverySettings
+  subscribeDeliverySettings,
+  subscribeChallenges,
+  subscribeChallengePosts,
+  subscribeAnalytics,
+  trackWebsiteVisit
 } from "../firebase.js";
 import { TRANSLATIONS } from "../data/i18n.js";
 
@@ -23,7 +27,10 @@ export function AppProvider({ children }) {
     setHomeContent,
     setFooterContent,
     setWilayas,
-    setDeliveryEnabled
+    setDeliveryEnabled,
+    setChallenges,
+    setChallengePosts,
+    setAnalytics
   } = store;
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ar;
 
@@ -39,10 +46,14 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     ensureSeedData();
+    trackWebsiteVisit();
     const unsubBooks = subscribeBooks(setBooks);
     const unsubAbout = subscribeAbout(setAbout);
     const unsubHome = subscribeHome(setHomeContent);
     const unsubFooter = subscribeFooter(setFooterContent);
+    const unsubChallenges = subscribeChallenges(setChallenges);
+    const unsubPosts = subscribeChallengePosts(setChallengePosts);
+    const unsubAnalytics = subscribeAnalytics(setAnalytics);
     const unsubDelivery = subscribeDeliverySettings((deliv) => {
       setDeliveryEnabled(deliv.deliveryEnabled);
       setWilayas(deliv.wilayas);
@@ -52,6 +63,9 @@ export function AppProvider({ children }) {
       unsubAbout && unsubAbout();
       unsubHome && unsubHome();
       unsubFooter && unsubFooter();
+      unsubChallenges && unsubChallenges();
+      unsubPosts && unsubPosts();
+      unsubAnalytics && unsubAnalytics();
       unsubDelivery && unsubDelivery();
     };
   }, [
@@ -60,7 +74,10 @@ export function AppProvider({ children }) {
     setHomeContent,
     setFooterContent,
     setWilayas,
-    setDeliveryEnabled
+    setDeliveryEnabled,
+    setChallenges,
+    setChallengePosts,
+    setAnalytics
   ]);
 
   const formatDzd = (amount) => {

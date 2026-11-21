@@ -1,6 +1,6 @@
 # Ghayma RD Bookstore & Author Platform
 
-Official website and admin studio for Algerian author **Roumeyssa Dahmane (رميساء دحمان)**, known as **@ghayma_rd**, and her acclaimed books including *« حياتي بعد الرضا »*.
+Official website and admin studio for Algerian author **ghayma_rd (R.Dahmane) (ghayma_rd (ر. دحمان))**, known as **@ghayma_rd**, and her acclaimed books including *« حياتي بعد الرضا »*.
 
 ---
 

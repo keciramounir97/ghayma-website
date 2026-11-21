@@ -29,7 +29,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Sliders,
-  Globe
+  Globe,
+  Trophy
 } from "lucide-react";
 import { useAdminContext } from "../context/AdminContext.jsx";
 import AdminToastContainer from "./AdminToastContainer.jsx";
@@ -85,6 +86,13 @@ export default function AdminLayout({ children }) {
       label: t.nav.settings || "Paramètres & Livraison",
       icon: Sliders,
       badge: deliveryEnabled ? "✓" : "○"
+    },
+    {
+      to: "/challenges",
+      label: t.nav.challenges || "Défis & Blog Ghayma",
+      icon: Trophy,
+      badge: "Nouveau ✨",
+      badgeColor: "bg-rose-500/20 text-rose-500"
     },
     { to: "/home-hero", label: t.nav.homeHero, icon: Sparkles },
     { to: "/about", label: t.nav.about, icon: UserPen },

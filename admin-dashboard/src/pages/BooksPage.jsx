@@ -19,7 +19,7 @@ export default function BooksPage() {
     subtitle: "",
     subtitleFr: "",
     subtitleEn: "",
-    author: "رميساء دحمان (ghayma_rd)",
+    author: "ghayma_rd (ر. دحمان) (ghayma_rd)",
     publisher: "مؤسسة رنة للنشر والتوزيع والطباعة",
     price: 1500,
     oldPrice: 1850,

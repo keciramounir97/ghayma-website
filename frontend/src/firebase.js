@@ -8,13 +8,18 @@ import {
   getDocs,
   setDoc,
   addDoc,
-  onSnapshot
+  updateDoc,
+  onSnapshot,
+  increment,
+  arrayUnion
 } from "firebase/firestore";
 import {
   INITIAL_BOOKS,
   INITIAL_ABOUT,
   INITIAL_HOME,
-  INITIAL_FOOTER
+  INITIAL_FOOTER,
+  INITIAL_CHALLENGES,
+  INITIAL_POSTS
 } from "./data/initialData.js";
 import { WILAYAS_69 } from "./data/wilayas.js";
 
@@ -93,6 +98,39 @@ export async function ensureSeedData() {
       };
       await setDoc(deliveryRef, initialDelivery);
       await setDoc(doc(adminDb, "settings", "delivery"), initialDelivery).catch(() => {});
+    }
+
+    // Seed Ghayma Challenges
+    const challengesSnap = await getDocs(collection(db, "challenges"));
+    if (challengesSnap.empty) {
+      for (const ch of INITIAL_CHALLENGES) {
+        await setDoc(doc(db, "challenges", ch.id), ch);
+        await setDoc(doc(adminDb, "challenges", ch.id), ch).catch(() => {});
+      }
+    }
+
+    // Seed Ghayma Challenge Posts / Interactive Blog
+    const postsSnap = await getDocs(collection(db, "challenge_posts"));
+    if (postsSnap.empty) {
+      for (const p of INITIAL_POSTS) {
+        await setDoc(doc(db, "challenge_posts", p.id), p);
+        await setDoc(doc(adminDb, "challenge_posts", p.id), p).catch(() => {});
+      }
+    }
+
+    // Seed Analytics Overview
+    const analyticsRef = doc(db, "analytics", "overview");
+    const analyticsSnap = await getDoc(analyticsRef);
+    if (!analyticsSnap.exists()) {
+      const initialStats = {
+        totalVisits: 3120,
+        challengeClicks: 1460,
+        challengeSubscribers: 820,
+        activeVisitors: 14,
+        updatedAt: new Date().toISOString()
+      };
+      await setDoc(analyticsRef, initialStats);
+      await setDoc(doc(adminDb, "analytics", "overview"), initialStats).catch(() => {});
     }
   } catch (err) {
     console.warn("Seed check fallback:", err);
@@ -225,4 +263,129 @@ export async function createContactMessage(msgData) {
     ...payload
   }).catch(() => {});
   return docRef.id;
+}
+
+export function subscribeChallenges(callback) {
+  return onSnapshot(
+    collection(db, "challenges"),
+    (snap) => {
+      if (snap.empty) {
+        callback(INITIAL_CHALLENGES);
+      } else {
+        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        list.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+        callback(list);
+      }
+    },
+    () => callback(INITIAL_CHALLENGES)
+  );
+}
+
+export function subscribeChallengePosts(callback) {
+  return onSnapshot(
+    collection(db, "challenge_posts"),
+    (snap) => {
+      if (snap.empty) {
+        callback(INITIAL_POSTS);
+      } else {
+        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        callback(list);
+      }
+    },
+    () => callback(INITIAL_POSTS)
+  );
+}
+
+export function subscribeAnalytics(callback) {
+  return onSnapshot(
+    doc(db, "analytics", "overview"),
+    (snap) => {
+      if (snap.exists()) {
+        callback(snap.data());
+      } else {
+        callback({ totalVisits: 3120, challengeClicks: 1460, challengeSubscribers: 820, activeVisitors: 14 });
+      }
+    },
+    () => callback({ totalVisits: 3120, challengeClicks: 1460, challengeSubscribers: 820, activeVisitors: 14 })
+  );
+}
+
+export async function trackWebsiteVisit() {
+  try {
+    const ref = doc(db, "analytics", "overview");
+    await updateDoc(ref, {
+      totalVisits: increment(1),
+      updatedAt: new Date().toISOString()
+    }).catch(() => {});
+  } catch (_) {}
+}
+
+export async function recordChallengeClick(challengeId) {
+  try {
+    await updateDoc(doc(db, "challenges", challengeId), {
+      clicksCount: increment(1)
+    }).catch(() => {});
+    await updateDoc(doc(adminDb, "challenges", challengeId), {
+      clicksCount: increment(1)
+    }).catch(() => {});
+    await updateDoc(doc(db, "analytics", "overview"), {
+      challengeClicks: increment(1)
+    }).catch(() => {});
+    await updateDoc(doc(adminDb, "analytics", "overview"), {
+      challengeClicks: increment(1)
+    }).catch(() => {});
+  } catch (_) {}
+}
+
+export async function recordChallengeView(challengeId) {
+  try {
+    await updateDoc(doc(db, "challenges", challengeId), {
+      viewsCount: increment(1)
+    }).catch(() => {});
+  } catch (_) {}
+}
+
+export async function joinChallengeSubscription(challengeId, subscriber) {
+  const subData = {
+    id: "sub-" + Date.now(),
+    name: subscriber.name || "قارئة غيمة",
+    wilaya: subscriber.wilaya || "الجزائر",
+    phone: subscriber.phone || "",
+    joinedAt: new Date().toISOString()
+  };
+  try {
+    await updateDoc(doc(db, "challenges", challengeId), {
+      subscribersCount: increment(1),
+      clicksCount: increment(1),
+      subscribers: arrayUnion(subData)
+    });
+    await updateDoc(doc(adminDb, "challenges", challengeId), {
+      subscribersCount: increment(1),
+      clicksCount: increment(1),
+      subscribers: arrayUnion(subData)
+    }).catch(() => {});
+    await updateDoc(doc(db, "analytics", "overview"), {
+      challengeSubscribers: increment(1),
+      challengeClicks: increment(1)
+    }).catch(() => {});
+    await updateDoc(doc(adminDb, "analytics", "overview"), {
+      challengeSubscribers: increment(1),
+      challengeClicks: increment(1)
+    }).catch(() => {});
+  } catch (err) {
+    console.warn("Join challenge error:", err);
+  }
+  return subData;
+}
+
+export async function reactToChallengePost(postId, reactionType = "like") {
+  const field = reactionType === "spark" ? "sparksCount" : "likesCount";
+  try {
+    await updateDoc(doc(db, "challenge_posts", postId), {
+      [field]: increment(1)
+    });
+    await updateDoc(doc(adminDb, "challenge_posts", postId), {
+      [field]: increment(1)
+    }).catch(() => {});
+  } catch (_) {}
 }

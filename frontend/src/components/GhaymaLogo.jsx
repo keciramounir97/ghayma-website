@@ -72,7 +72,7 @@ export default function GhaymaLogo({ dark, onClick, subtitle, size = "md", showS
               isSm ? "text-[9px]" : "text-[10px] sm:text-[11px]"
             } ${dark ? "text-rose-200/75" : "text-slate-500"}`}
           >
-            {subtitle || "رميساء دحمان • L'Écrivaine"}
+            {subtitle || "ghayma_rd (ر. دحمان) • L'Écrivaine"}
           </span>
         )}
       </div>

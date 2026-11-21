@@ -82,6 +82,9 @@ export default function Footer() {
             <Link to="/books" className="hover:text-rose-500 transition-colors">
               {t.nav.books}
             </Link>
+            <Link to="/challenges" className="hover:text-rose-500 transition-colors">
+              {t.nav.challenges}
+            </Link>
             <Link to="/about" className="hover:text-rose-500 transition-colors">
               {t.nav.about}
             </Link>

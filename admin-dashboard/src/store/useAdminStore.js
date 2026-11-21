@@ -3,7 +3,9 @@ import {
   INITIAL_BOOKS,
   INITIAL_ABOUT,
   INITIAL_HOME,
-  INITIAL_FOOTER
+  INITIAL_FOOTER,
+  INITIAL_CHALLENGES,
+  INITIAL_POSTS
 } from "../data/initialData.js";
 import { WILAYAS_69 } from "../data/wilayas.js";
 import { ADMIN_TRANSLATIONS } from "../data/i18n.js";
@@ -35,11 +37,16 @@ export const useAdminStore = create((set, get) => ({
   footerContent: INITIAL_FOOTER,
   wilayas: WILAYAS_69,
   deliveryEnabled: false, // Deactivated by default until admin checks it in settings
+  challenges: INITIAL_CHALLENGES,
+  challengePosts: INITIAL_POSTS,
+  analytics: { totalVisits: 3120, challengeClicks: 1460, challengeSubscribers: 820, activeVisitors: 14 },
 
   // Interactive Ticket Modals State
   selectedOrderTicket: null,
   selectedMessageTicket: null,
   selectedWilayaTicket: null,
+  selectedChallenge: null,
+  selectedPost: null,
 
   setLang: (lang) => {
     localStorage.setItem("ghayma_admin_lang", lang);
@@ -97,6 +104,11 @@ export const useAdminStore = create((set, get) => ({
     set({ wilayas: next });
   },
   setDeliveryEnabled: (deliveryEnabled) => set({ deliveryEnabled }),
+  setChallenges: (challenges) => set({ challenges }),
+  setChallengePosts: (challengePosts) => set({ challengePosts }),
+  setAnalytics: (analytics) => set({ analytics }),
+  setSelectedChallenge: (selectedChallenge) => set({ selectedChallenge }),
+  setSelectedPost: (selectedPost) => set({ selectedPost }),
 
   setSelectedOrderTicket: (selectedOrderTicket) => set({ selectedOrderTicket }),
   setSelectedMessageTicket: (selectedMessageTicket) => set({ selectedMessageTicket }),

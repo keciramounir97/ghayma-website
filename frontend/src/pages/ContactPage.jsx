@@ -27,9 +27,9 @@ export default function ContactPage() {
       });
       addToast(t.contactPage.successToast);
       addNotification(
-        `تم إرسال رسالتكِ بنجاح إلى الكاتبة رميساء دحمان 💌`,
-        `Votre message a été envoyé avec succès à Roumeyssa Dahmane 💌`,
-        `Your message was sent to Roumeyssa Dahmane 💌`
+        `تم إرسال رسالتكِ بنجاح إلى ghayma_rd (ر. دحمان) 💌`,
+        `Votre message a été envoyé avec succès à ghayma_rd (R.Dahmane) 💌`,
+        `Your message was sent to ghayma_rd (R.Dahmane) 💌`
       );
       setName("");
       setContactInfo("");

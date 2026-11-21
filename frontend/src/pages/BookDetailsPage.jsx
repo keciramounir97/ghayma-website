@@ -227,7 +227,7 @@ export default function BookDetailsPage() {
                 : t.booksSection.outOfStock}
             </span>
             <span className="text-xs opacity-70 font-medium">
-              {book.author || "رميساء دحمان (@ghayma_rd)"}
+              {book.author || "ghayma_rd (ر. دحمان) (@ghayma_rd)"}
             </span>
           </div>
 

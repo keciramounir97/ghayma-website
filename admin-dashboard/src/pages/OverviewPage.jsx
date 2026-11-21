@@ -10,7 +10,8 @@ import {
   UserPen,
   LayoutTemplate,
   PanelBottom,
-  Sliders
+  Sliders,
+  Trophy
 } from "lucide-react";
 import { useAdminContext } from "../context/AdminContext.jsx";
 import OrdersPage from "./OrdersPage.jsx";
@@ -78,6 +79,15 @@ export default function OverviewPage() {
   ];
 
   const sectionEditorShortcuts = [
+    {
+      title: t.nav.challenges || "Défis & Blog Ghayma",
+      desc:
+        lang === "ar"
+          ? "أنشئي تحديات 24 ساعة وشهرية، تابعي المشتركات وإحصائيات النقرات واليوميات التفاعلية."
+          : "Gérez les défis 24h, mensuels, le compte à rebours, le calendrier et le blog Pinterest.",
+      icon: Trophy,
+      to: "/challenges"
+    },
     {
       title: t.nav.settings || "Paramètres & Frais de Livraison",
       desc: deliveryEnabled

@@ -155,8 +155,8 @@ export default function SettingsPage() {
                   deliveryEnabled
                     ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-white shadow-xl shadow-emerald-500/35 hover:shadow-emerald-500/50 hover:from-emerald-600 hover:to-teal-600"
                     : dark
-                    ? "bg-[#25172e] hover:bg-[#2f1d3a] text-rose-100 border-2 border-rose-900/60 hover:border-rose-500/50"
-                    : "bg-slate-50 hover:bg-slate-100 text-slate-900 border-2 border-slate-300 hover:border-emerald-500 shadow-sm"
+                    ? "bg-[#24152e] hover:bg-[#2e1b3a] text-rose-100 border-2 border-rose-800/60 hover:border-rose-500/50"
+                    : "bg-white hover:bg-slate-50 text-slate-900 border-2 border-slate-300 hover:border-slate-400 shadow-sm"
                 }`}
               >
                 {/* Visual Check Indicator */}
@@ -166,7 +166,7 @@ export default function SettingsPage() {
                       ? "bg-white text-emerald-600 shadow-md scale-110"
                       : dark
                       ? "bg-[#180e20] text-rose-300"
-                      : "bg-slate-200 text-slate-600"
+                      : "bg-slate-100 text-slate-700 border border-slate-200"
                   }`}
                 >
                   {deliveryEnabled ? (
@@ -177,7 +177,15 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="text-start leading-tight">
-                  <div className="text-xs sm:text-sm font-bold">
+                  <div
+                    className={`text-xs sm:text-sm font-bold ${
+                      deliveryEnabled
+                        ? "text-white"
+                        : dark
+                        ? "text-rose-100"
+                        : "text-slate-900"
+                    }`}
+                  >
                     {deliveryEnabled
                       ? t.settings.btnChecked
                       : t.settings.btnUnchecked}
@@ -186,7 +194,9 @@ export default function SettingsPage() {
                     className={`text-[11px] font-medium mt-0.5 ${
                       deliveryEnabled
                         ? "text-emerald-100"
-                        : "text-slate-500 dark:text-rose-300/70"
+                        : dark
+                        ? "text-rose-300/80"
+                        : "text-slate-600"
                     }`}
                   >
                     {deliveryEnabled
@@ -203,17 +213,17 @@ export default function SettingsPage() {
                 <div
                   className={`w-12 h-6 rounded-full transition-colors relative ms-1 hidden sm:block ${
                     deliveryEnabled
-                      ? "bg-white/30"
+                      ? "bg-emerald-700/50"
                       : dark
-                      ? "bg-[#150b1c]"
-                      : "bg-slate-300"
+                      ? "bg-[#140b1b] border border-rose-900/60"
+                      : "bg-slate-300 border border-slate-300"
                   }`}
                 >
                   <div
                     className={`w-5 h-5 rounded-full bg-white shadow-md absolute top-0.5 transition-all duration-300 flex items-center justify-center text-[10px] font-black ${
                       deliveryEnabled
                         ? "right-0.5 text-emerald-600"
-                        : "left-0.5 text-slate-500"
+                        : "left-0.5 text-slate-600"
                     }`}
                   >
                     {deliveryEnabled ? "✓" : "○"}
@@ -221,7 +231,7 @@ export default function SettingsPage() {
                 </div>
               </button>
 
-              <span className="text-[11px] text-slate-500 dark:text-rose-300/60 flex items-center gap-1 font-medium">
+              <span className="text-[11px] text-slate-600 dark:text-rose-300/70 flex items-center gap-1 font-medium">
                 <Sparkles className="w-3 h-3 text-amber-500" />
                 {lang === "ar"
                   ? "التحديث فوري وينعكس مباشرة على الموقع"
@@ -236,18 +246,26 @@ export default function SettingsPage() {
             <div
               className={`p-4 sm:p-5 rounded-2xl border transition-all ${
                 deliveryEnabled
-                  ? "bg-emerald-50 dark:bg-emerald-950/30 border-2 border-emerald-400 dark:border-emerald-600/50 text-slate-900 dark:text-emerald-50"
-                  : "bg-slate-50/80 dark:bg-[#150d1b] border border-slate-200 dark:border-rose-950/60 text-slate-500 dark:text-rose-300/50 opacity-60"
+                  ? dark
+                    ? "bg-emerald-950/40 border-2 border-emerald-500 text-emerald-100 shadow-sm"
+                    : "bg-emerald-50/90 border-2 border-emerald-500 text-emerald-950 shadow-sm"
+                  : dark
+                  ? "bg-[#170e1e] border border-rose-950/60 text-rose-300/60"
+                  : "bg-slate-50 border border-slate-200 text-slate-700"
               }`}
             >
               <div
-                className={`flex items-center gap-2 font-bold text-xs sm:text-sm mb-2 ${
+                className={`flex items-center gap-2 font-extrabold text-xs sm:text-sm mb-2 ${
                   deliveryEnabled
-                    ? "text-emerald-700 dark:text-emerald-400"
-                    : "text-slate-600 dark:text-rose-300/60"
+                    ? dark
+                      ? "text-emerald-300"
+                      : "text-emerald-900"
+                    : dark
+                    ? "text-rose-300/70"
+                    : "text-slate-700"
                 }`}
               >
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
                 <span>
                   {lang === "ar"
                     ? "عند التفعيل بالعلامة الخضراء (ACTIVÉ)"
@@ -255,10 +273,14 @@ export default function SettingsPage() {
                 </span>
               </div>
               <ul
-                className={`text-xs space-y-1.5 list-disc list-inside ${
+                className={`text-xs space-y-1.5 list-disc list-inside leading-relaxed ${
                   deliveryEnabled
-                    ? "text-slate-700 dark:text-emerald-100"
-                    : "text-slate-500 dark:text-rose-300/50"
+                    ? dark
+                      ? "text-emerald-100 font-medium"
+                      : "text-emerald-950 font-medium"
+                    : dark
+                    ? "text-rose-300/60"
+                    : "text-slate-600"
                 }`}
               >
                 <li>
@@ -283,18 +305,26 @@ export default function SettingsPage() {
             <div
               className={`p-4 sm:p-5 rounded-2xl border transition-all ${
                 !deliveryEnabled
-                  ? "bg-rose-50/90 dark:bg-rose-950/30 border-2 border-rose-300 dark:border-rose-700/50 text-slate-900 dark:text-rose-50"
-                  : "bg-slate-50/80 dark:bg-[#150d1b] border border-slate-200 dark:border-rose-950/60 text-slate-500 dark:text-rose-300/50 opacity-60"
+                  ? dark
+                    ? "bg-rose-950/40 border-2 border-rose-600 text-rose-100 shadow-sm"
+                    : "bg-rose-50/90 border-2 border-rose-400 text-slate-900 shadow-sm"
+                  : dark
+                  ? "bg-[#170e1e] border border-rose-950/60 text-rose-300/60"
+                  : "bg-slate-50 border border-slate-200 text-slate-700"
               }`}
             >
               <div
-                className={`flex items-center gap-2 font-bold text-xs sm:text-sm mb-2 ${
+                className={`flex items-center gap-2 font-extrabold text-xs sm:text-sm mb-2 ${
                   !deliveryEnabled
-                    ? "text-rose-700 dark:text-rose-400"
-                    : "text-slate-600 dark:text-rose-300/60"
+                    ? dark
+                      ? "text-rose-300"
+                      : "text-rose-700"
+                    : dark
+                    ? "text-rose-300/70"
+                    : "text-slate-700"
                 }`}
               >
-                <Circle className="w-4 h-4 shrink-0" />
+                <Circle className="w-4 h-4 shrink-0 text-rose-500" />
                 <span>
                   {lang === "ar"
                     ? "عند إلغاء التحديد (معطّل - الوضع الافتراضي)"
@@ -304,10 +334,14 @@ export default function SettingsPage() {
                 </span>
               </div>
               <ul
-                className={`text-xs space-y-1.5 list-disc list-inside ${
+                className={`text-xs space-y-1.5 list-disc list-inside leading-relaxed ${
                   !deliveryEnabled
-                    ? "text-slate-800 dark:text-rose-100"
-                    : "text-slate-500 dark:text-rose-300/50"
+                    ? dark
+                      ? "text-rose-100 font-medium"
+                      : "text-slate-900 font-medium"
+                    : dark
+                    ? "text-rose-300/60"
+                    : "text-slate-600"
                 }`}
               >
                 <li>
@@ -349,7 +383,7 @@ export default function SettingsPage() {
               <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-rose-50">
                 {t.settings.previewTitle}
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-rose-300/70">
+              <p className="text-[11px] text-slate-600 dark:text-rose-300/70">
                 {deliveryEnabled
                   ? t.settings.previewDescActive
                   : t.settings.previewDescInactive}
@@ -358,10 +392,14 @@ export default function SettingsPage() {
           </div>
 
           <span
-            className={`px-3 py-1 rounded-full text-xs font-bold border ${
+            className={`px-3 py-1 rounded-full text-xs font-extrabold border ${
               deliveryEnabled
-                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30"
-                : "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30"
+                ? dark
+                  ? "bg-emerald-950/60 text-emerald-200 border-emerald-800"
+                  : "bg-emerald-100 text-emerald-900 border-emerald-300"
+                : dark
+                ? "bg-rose-950/60 text-rose-200 border-rose-800"
+                : "bg-rose-100 text-rose-900 border-rose-300"
             }`}
           >
             {deliveryEnabled
@@ -373,16 +411,21 @@ export default function SettingsPage() {
         {/* Mockup Form Display */}
         <div
           dir={isRtl ? "rtl" : "ltr"}
-          className={`p-5 sm:p-6 rounded-2xl border space-y-4 max-w-xl mx-auto ${
+          className={`p-5 sm:p-6 rounded-2xl border space-y-4 max-w-xl mx-auto shadow-sm ${
             dark
-              ? "bg-[#1f1427] border-rose-900/60"
-              : "bg-rose-50/50 border-rose-200"
+              ? "bg-[#1a1122] border-rose-900/60"
+              : "bg-white border-2 border-rose-200"
           }`}
         >
-          <div className="text-xs font-bold text-rose-500 pb-1 border-b border-rose-500/10">
-            {lang === "ar"
-              ? "معاينة استمارة الطلب لدى الزبائن (Fiche Produit Client)"
-              : "Aperçu de la commande chez les clients"}
+          <div className="text-xs font-bold text-rose-600 dark:text-rose-400 pb-1 border-b border-rose-500/15 flex items-center justify-between">
+            <span>
+              {lang === "ar"
+                ? "معاينة استمارة الطلب لدى الزبائن (Fiche Produit Client)"
+                : "Aperçu de la commande chez les clients"}
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold">
+              Simulation Live
+            </span>
           </div>
 
           {/* Simulated Wilaya & Commune */}
@@ -390,28 +433,28 @@ export default function SettingsPage() {
             <div
               className={`p-2.5 rounded-xl border ${
                 dark
-                  ? "bg-[#281833] border-rose-900/60 text-rose-100"
-                  : "bg-white border-rose-200 text-slate-800 shadow-xs"
+                  ? "bg-[#24152d] border-rose-900/60 text-rose-100"
+                  : "bg-slate-50 border border-slate-300 text-slate-900 shadow-xs"
               }`}
             >
-              <span className="block text-[11px] font-semibold text-slate-500 dark:text-rose-300/70">
+              <span className="block text-[11px] font-bold text-slate-600 dark:text-rose-300/80">
                 Wilaya:
               </span>
-              <span className="font-bold text-slate-900 dark:text-white">
+              <span className="font-extrabold text-slate-950 dark:text-white">
                 16 - Alger (الجزائر)
               </span>
             </div>
             <div
               className={`p-2.5 rounded-xl border ${
                 dark
-                  ? "bg-[#281833] border-rose-900/60 text-rose-100"
-                  : "bg-white border-rose-200 text-slate-800 shadow-xs"
+                  ? "bg-[#24152d] border-rose-900/60 text-rose-100"
+                  : "bg-slate-50 border border-slate-300 text-slate-900 shadow-xs"
               }`}
             >
-              <span className="block text-[11px] font-semibold text-slate-500 dark:text-rose-300/70">
+              <span className="block text-[11px] font-bold text-slate-600 dark:text-rose-300/80">
                 Commune:
               </span>
-              <span className="font-bold text-slate-900 dark:text-white">
+              <span className="font-extrabold text-slate-950 dark:text-white">
                 Bab El Oued
               </span>
             </div>
@@ -423,41 +466,41 @@ export default function SettingsPage() {
               className={`space-y-2 p-3 rounded-2xl border ${
                 dark
                   ? "bg-emerald-950/30 border-emerald-700/50"
-                  : "bg-emerald-50 border-emerald-300"
+                  : "bg-emerald-50 border border-emerald-300"
               }`}
             >
-              <div className="flex items-center justify-between text-xs font-bold text-emerald-700 dark:text-emerald-400">
+              <div className="flex items-center justify-between text-xs font-bold text-emerald-800 dark:text-emerald-300">
                 <span>{t.delivery.colAgency}: {sampleWilaya.agency}</span>
-                <span className="text-[11px] font-semibold">
+                <span className="text-[11px] font-extrabold text-emerald-700 dark:text-emerald-400">
                   {lang === "ar" ? "الخيارات ظاهرة للزبون ✓" : "Options visibles ✓"}
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                 <div
                   className={`p-3 rounded-xl border-2 border-emerald-500 flex items-center justify-between ${
-                    dark ? "bg-[#281833]" : "bg-white shadow-xs"
+                    dark ? "bg-[#24152d]" : "bg-white shadow-xs"
                   }`}
                 >
                   <div className="flex items-center gap-2">
                     <HomeIcon className="w-4 h-4 text-emerald-500" />
-                    <span className="font-bold text-slate-900 dark:text-white">
+                    <span className="font-bold text-slate-950 dark:text-white">
                       À la maison
                     </span>
                   </div>
-                  <span className="font-extrabold text-emerald-600 dark:text-emerald-400">
+                  <span className="font-extrabold text-emerald-700 dark:text-emerald-400">
                     {formatDzd(sampleWilaya.homePrice)}
                   </span>
                 </div>
                 <div
-                  className={`p-3 rounded-xl border flex items-center justify-between opacity-85 ${
+                  className={`p-3 rounded-xl border flex items-center justify-between ${
                     dark
-                      ? "bg-[#281833] border-rose-900/60"
-                      : "bg-white border-rose-200 shadow-xs"
+                      ? "bg-[#24152d] border-rose-900/60 opacity-85"
+                      : "bg-white border-slate-200 text-slate-800 shadow-xs"
                   }`}
                 >
                   <div className="flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-amber-500" />
-                    <span className="font-bold text-slate-900 dark:text-white">
+                    <span className="font-bold text-slate-950 dark:text-white">
                       À l'agence
                     </span>
                   </div>
@@ -469,18 +512,18 @@ export default function SettingsPage() {
             </div>
           ) : (
             <div
-              className={`p-3.5 rounded-2xl border border-dashed text-center text-xs ${
+              className={`p-3.5 rounded-2xl border-2 border-dashed text-center text-xs ${
                 dark
-                  ? "border-rose-900/60 bg-rose-950/20 text-rose-200/90"
-                  : "border-rose-300 bg-rose-50/70 text-slate-700"
+                  ? "border-amber-600/50 bg-amber-950/30 text-amber-100"
+                  : "border-amber-300 bg-amber-50/70 text-slate-900"
               }`}
             >
-              <span className="font-bold text-rose-600 dark:text-rose-400 block mb-0.5">
+              <span className="font-extrabold text-amber-900 dark:text-amber-300 block mb-0.5 text-xs sm:text-sm">
                 {lang === "ar"
                   ? "خيارات التوصيل (المنزل / الوكالة) مخفية تماماً عن الزبون"
                   : "Le choix du mode de livraison est masqué"}
               </span>
-              <span className="text-[11px] text-slate-600 dark:text-rose-200/80">
+              <span className="text-[11px] text-amber-800 dark:text-amber-200 font-medium">
                 {lang === "ar"
                   ? "لن يُطلب من الزبون الاختيار ولن تُحسب له أي رسوم توصيل."
                   : "Le client n'a pas à choisir et aucun frais de livraison n'est calculé."}
@@ -492,27 +535,27 @@ export default function SettingsPage() {
           <div
             className={`p-3.5 rounded-xl border space-y-1.5 text-xs ${
               dark
-                ? "bg-[#281833] border-rose-900/60 text-rose-100"
-                : "bg-white border-rose-200 text-slate-800 shadow-xs"
+                ? "bg-[#24152d] border-rose-900/60 text-rose-100"
+                : "bg-slate-50 border border-slate-200 text-slate-900 shadow-xs"
             }`}
           >
             <div className="flex justify-between">
-              <span className="text-slate-600 dark:text-rose-300/70">
+              <span className="text-slate-600 dark:text-rose-300/80 font-medium">
                 Sous-total Livre (1 × 1 500 DZD):
               </span>
-              <span className="font-bold text-slate-900 dark:text-white">
+              <span className="font-bold text-slate-950 dark:text-white">
                 {formatDzd(1500)}
               </span>
             </div>
 
             {deliveryEnabled && (
-              <div className="flex justify-between text-emerald-700 dark:text-emerald-400 font-semibold">
+              <div className="flex justify-between text-emerald-800 dark:text-emerald-300 font-bold">
                 <span>Frais de Livraison (16 - Alger • À la maison):</span>
                 <span>{formatDzd(sampleWilaya.homePrice)}</span>
               </div>
             )}
 
-            <div className="border-t border-rose-500/20 pt-1.5 flex justify-between font-extrabold text-sm text-rose-600 dark:text-rose-400">
+            <div className="border-t border-rose-500/20 pt-1.5 flex justify-between font-black text-sm text-rose-600 dark:text-rose-400">
               <span>Total à Payer:</span>
               <span>
                 {deliveryEnabled

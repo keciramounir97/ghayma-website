@@ -53,6 +53,7 @@ export default function Navbar() {
   const navLinks = [
     { to: "/", label: t.nav.home, icon: HomeIcon },
     { to: "/books", label: t.nav.books, icon: BookOpen },
+    { to: "/challenges", label: t.nav.challenges, icon: Sparkles },
     { to: "/about", label: t.nav.about, icon: Feather },
     { to: "/contact", label: t.nav.contact, icon: Mail }
   ];
