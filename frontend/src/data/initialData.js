@@ -384,9 +384,10 @@ export const INITIAL_POSTS = [
     contentEn: "Today we begin a fresh day in our challenge together... Don't strive for perfection, just give your soul 10 minutes of genuine reading and a warm cup of tea. I'm with you every step of the way 🌸",
     imageUrl: "/images/book-spread.jpg",
     sticker: "🌸",
-    likesCount: 245,
-    sparksCount: 132,
-    date: "Aujourd'hui à 09:30",
+    likesCount: 0,
+    sparksCount: 0,
+    commentsCount: 0,
+    date: "Aujourd'hui",
     tags: ["#تحديات_غيمة", "#صباح_السكينة", "#حياتي_بعد_الرضا", "#GhaymaVibes"]
   },
   {
@@ -400,9 +401,10 @@ export const INITIAL_POSTS = [
     contentEn: "I wrote these words on a night when I felt all doors were shut... And today I see them raining peace upon your hearts. Keep holding onto your reading streak ♡",
     imageUrl: "/images/book-front.jpg",
     sticker: "✨",
-    likesCount: 389,
-    sparksCount: 210,
-    date: "Hier à 17:15",
+    likesCount: 0,
+    sparksCount: 0,
+    commentsCount: 0,
+    date: "Hier",
     tags: ["#كواليس", "#اقتباس_اليوم", "#ghayma_rd", "#قوة_الرضا"]
   },
   {
@@ -416,8 +418,9 @@ export const INITIAL_POSTS = [
     contentEn: "To be content means to sleep with the quiet certainty that what is destined for you will never miss you. Sleep in absolute serenity, my dear friends ♡",
     imageUrl: "/images/book-shelf.jpeg",
     sticker: "🌙",
-    likesCount: 312,
-    sparksCount: 185,
+    likesCount: 0,
+    sparksCount: 0,
+    commentsCount: 0,
     date: "Il y a 2 jours",
     tags: ["#همسة_المساء", "#طمأنينة", "#سكون", "#تحدي_24h"]
   }

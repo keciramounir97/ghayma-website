@@ -13,6 +13,7 @@ import {
   setDeliveryEnabledInFirestore,
   subscribeChallenges,
   subscribeChallengePosts,
+  subscribeChallengeComments,
   subscribeAnalytics,
   subscribeArticles,
   subscribeArticleComments
@@ -36,6 +37,7 @@ export function AdminProvider({ children }) {
     setDeliveryEnabled,
     setChallenges,
     setChallengePosts,
+    setChallengeComments,
     setArticles,
     setArticleComments,
     setAnalytics,
@@ -64,6 +66,7 @@ export function AdminProvider({ children }) {
     const unsubFooter = subscribeFooter(setFooterContent);
     const unsubChallenges = subscribeChallenges(setChallenges);
     const unsubPosts = subscribeChallengePosts(setChallengePosts);
+    const unsubChallengeComments = subscribeChallengeComments(setChallengeComments);
     const unsubArticles = subscribeArticles(setArticles);
     const unsubComments = subscribeArticleComments(setArticleComments);
     const unsubAnalytics = subscribeAnalytics(setAnalytics);
@@ -96,6 +99,7 @@ export function AdminProvider({ children }) {
     setDeliveryEnabled,
     setChallenges,
     setChallengePosts,
+    setChallengeComments,
     setArticles,
     setArticleComments,
     setAnalytics

@@ -1,0 +1,37 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "article_comments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "articleId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "challenge_comments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "postId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "orders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "messages",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "read", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

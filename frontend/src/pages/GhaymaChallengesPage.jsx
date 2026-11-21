@@ -32,15 +32,21 @@ import {
   Sunrise,
   Sunset,
   Lock,
-  UserCheck
+  UserCheck,
+  MessageCircle
 } from "lucide-react";
 import { useAppContext } from "../context/AppContext.jsx";
 import {
   recordChallengeClick,
   recordChallengeView,
   joinChallengeSubscription,
-  reactToChallengePost
+  reactToChallengePost,
+  subscribeChallengeComments,
+  addChallengeComment,
+  deleteChallengeComment,
+  toggleLikeChallengePost
 } from "../firebase.js";
+import { checkRateLimit } from "../utils/rateLimiter.js";
 import { WILAYAS_69 } from "../data/wilayas.js";
 
 // Real-time Countdown Hook
@@ -963,106 +969,297 @@ export default function GhaymaChallengesPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {challengePosts.map((post) => {
-                const title =
-                  lang === "ar"
-                    ? post.titleAr || post.titleFr
-                    : lang === "fr"
-                    ? post.titleFr
-                    : post.titleEn || post.titleFr;
-
-                const content =
-                  lang === "ar"
-                    ? post.contentAr || post.contentFr
-                    : lang === "fr"
-                    ? post.contentFr
-                    : post.contentEn || post.contentFr;
-
-                return (
-                  <Card
-                    key={post.id}
-                    elevation={dark ? 4 : 2}
-                    sx={{
-                      borderRadius: "28px",
-                      bgcolor: dark ? "#1a1121" : "#ffffff",
-                      overflow: "hidden"
-                    }}
-                    className="border border-rose-500/20 hover:border-rose-500/50 hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
-                  >
-                    {/* Post Image */}
-                    {post.imageUrl && (
-                      <div className="relative h-52 overflow-hidden bg-rose-500/10">
-                        <img
-                          src={post.imageUrl}
-                          alt={title}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                        />
-                        {post.sticker && (
-                          <div className="absolute top-3.5 right-3.5 w-10 h-10 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md flex items-center justify-center text-xl shadow-md">
-                            {post.sticker}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-rose-300/70">
-                          <span className="font-bold text-rose-500">
-                            {post.authorName || "ghayma_rd (R.Dahmane)"}
-                          </span>
-                          <span>{post.date}</span>
-                        </div>
-
-                        <h4 className="font-editorial text-lg sm:text-xl font-bold text-slate-900 dark:text-rose-50 leading-snug">
-                          {title}
-                        </h4>
-
-                        <p className="text-xs sm:text-sm text-slate-600 dark:text-rose-200/80 leading-relaxed">
-                          {content}
-                        </p>
-                      </div>
-
-                      {/* Reactions Bar */}
-                      <div className="pt-3 border-t border-rose-500/15 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              reactToChallengePost(post.id, "like");
-                              addToast("Mention J'aime enregistrée ♡");
-                            }}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold transition-all cursor-pointer"
-                          >
-                            <Heart className="w-3.5 h-3.5 fill-rose-500" />
-                            <span>{post.likesCount || 0}</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              reactToChallengePost(post.id, "spark");
-                              addToast("Étincelle de motivation envoyée ✨");
-                            }}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold transition-all cursor-pointer"
-                          >
-                            <Sparkles className="w-3.5 h-3.5 fill-amber-500" />
-                            <span>{post.sparksCount || 0}</span>
-                          </button>
-                        </div>
-
-                        <span className="text-[10px] text-slate-400 dark:text-rose-300/60 font-semibold">
-                          #ghayma_challenge
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
+              {challengePosts.map((post) => (
+                <ChallengePostCard
+                  key={post.id}
+                  post={post}
+                  dark={dark}
+                  lang={lang}
+                  isAr={isAr}
+                  currentUser={currentUser}
+                  addToast={addToast}
+                />
+              ))}
             </div>
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+// Interactive Challenge Post Card with Real Likes & Real Comments (Zero Fake Data)
+function ChallengePostCard({ post, dark, lang, isAr, currentUser, addToast }) {
+  const [comments, setComments] = useState([]);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [newCommentText, setNewCommentText] = useState("");
+  const [submittingComment, setSubmittingComment] = useState(false);
+  const [likesCount, setLikesCount] = useState(post.likesCount || 0);
+  const [isLiked, setIsLiked] = useState(() => {
+    try {
+      const likedPosts = JSON.parse(localStorage.getItem("ghayma_liked_posts") || "[]");
+      return likedPosts.includes(post.id);
+    } catch (_) {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    setLikesCount(post.likesCount || 0);
+  }, [post.likesCount]);
+
+  useEffect(() => {
+    if (!commentsOpen) return;
+    const unsub = subscribeChallengeComments(post.id, (list) => {
+      setComments(list);
+    });
+    return () => unsub && unsub();
+  }, [post.id, commentsOpen]);
+
+  const handleLike = async () => {
+    const rateCheck = checkRateLimit("like");
+    if (!rateCheck.allowed) {
+      addToast(rateCheck.message);
+      return;
+    }
+    const nextLiked = !isLiked;
+    setIsLiked(nextLiked);
+    setLikesCount((prev) => (nextLiked ? prev + 1 : Math.max(0, prev - 1)));
+
+    try {
+      const likedPosts = JSON.parse(localStorage.getItem("ghayma_liked_posts") || "[]");
+      const nextList = nextLiked
+        ? [...new Set([...likedPosts, post.id])]
+        : likedPosts.filter((id) => id !== post.id);
+      localStorage.setItem("ghayma_liked_posts", JSON.stringify(nextList));
+
+      await toggleLikeChallengePost(post.id, currentUser?.id || currentUser?.email);
+      addToast(
+        nextLiked
+          ? (isAr ? "تم تسجيل إعجابكِ بالمنشور ♡" : "Mention J'aime ajoutée ♡")
+          : (isAr ? "تم إلغاء الإعجاب" : "Mention J'aime retirée")
+      );
+    } catch (_) {}
+  };
+
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    if (!newCommentText.trim()) return;
+
+    const rateCheck = checkRateLimit("comment");
+    if (!rateCheck.allowed) {
+      addToast(rateCheck.message);
+      return;
+    }
+
+    setSubmittingComment(true);
+    try {
+      await addChallengeComment(post.id, {
+        authorId: currentUser?.id || currentUser?.email,
+        authorName: currentUser?.name || (isAr ? "قارئة غيمة" : "Lectrice Ghayma"),
+        authorAvatar: currentUser?.avatar || "🌸",
+        content: newCommentText.trim()
+      });
+      setNewCommentText("");
+      addToast(isAr ? "تم نشر تعليقكِ بنجاح 🌸" : "Votre commentaire a été publié 🌸");
+    } catch (err) {
+      addToast(isAr ? "حدث خطأ أثناء نشر التعليق" : "Erreur lors de l'envoi du commentaire");
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await deleteChallengeComment(commentId, post.id);
+      addToast(isAr ? "تم حذف التعليق بنجاح" : "Commentaire supprimé");
+    } catch (_) {}
+  };
+
+  const title =
+    lang === "ar"
+      ? post.titleAr || post.titleFr
+      : lang === "fr"
+      ? post.titleFr
+      : post.titleEn || post.titleFr;
+
+  const content =
+    lang === "ar"
+      ? post.contentAr || post.contentFr
+      : lang === "fr"
+      ? post.contentFr
+      : post.contentEn || post.contentFr;
+
+  return (
+    <Card
+      elevation={dark ? 4 : 2}
+      sx={{
+        borderRadius: "28px",
+        bgcolor: dark ? "#1a1121" : "#ffffff",
+        overflow: "hidden"
+      }}
+      className="border border-rose-500/20 hover:border-rose-500/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+    >
+      {post.imageUrl && (
+        <div className="relative h-52 overflow-hidden bg-rose-500/10">
+          <img
+            src={post.imageUrl}
+            alt={title}
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+          />
+          {post.sticker && (
+            <div className="absolute top-3.5 right-3.5 w-10 h-10 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md flex items-center justify-center text-xl shadow-md">
+              {post.sticker}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-rose-300/70">
+            <span className="font-bold text-rose-500">
+              {post.authorName || "ghayma_rd (R.Dahmane)"}
+            </span>
+            <span>{post.date}</span>
+          </div>
+
+          <h4 className="font-editorial text-lg sm:text-xl font-bold text-slate-900 dark:text-rose-50 leading-snug">
+            {title}
+          </h4>
+
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-rose-200/80 leading-relaxed whitespace-pre-line">
+            {content}
+          </p>
+        </div>
+
+        {/* Reactions & Comments Bar */}
+        <div className="pt-3 border-t border-rose-500/15 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleLike}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  isLiked
+                    ? "bg-rose-500 text-white shadow-sm shadow-rose-500/30"
+                    : "bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400"
+                }`}
+              >
+                <Heart className={`w-3.5 h-3.5 ${isLiked ? "fill-white" : "fill-rose-500"}`} />
+                <span>{likesCount}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCommentsOpen(!commentsOpen)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  commentsOpen
+                    ? "bg-purple-500 text-white shadow-sm"
+                    : "bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-300"
+                }`}
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>
+                  {post.commentsCount || comments.length || 0} {isAr ? "تعليق" : "avis"}
+                </span>
+              </button>
+            </div>
+
+            <span className="text-[10px] text-slate-400 dark:text-rose-300/60 font-semibold">
+              #ghayma_challenge
+            </span>
+          </div>
+
+          {/* Interactive Comments Drawer / Section */}
+          {commentsOpen && (
+            <div className="space-y-3 pt-3 border-t border-rose-500/15 animate-fade-in">
+              <form onSubmit={handleAddComment} className="flex gap-2">
+                <input
+                  type="text"
+                  value={newCommentText}
+                  onChange={(e) => setNewCommentText(e.target.value)}
+                  placeholder={
+                    isAr
+                      ? "اكتبي تعليقكِ أو شعوركِ اليوم 🌸..."
+                      : "Partagez votre pensée du jour 🌸..."
+                  }
+                  className={`flex-1 px-3 py-2 text-xs rounded-xl border focus:outline-none focus:ring-2 focus:ring-rose-400 ${
+                    dark
+                      ? "bg-[#25162e] border-rose-900/60 text-white placeholder-rose-300/40"
+                      : "bg-slate-50 border-rose-200 text-slate-900 placeholder-slate-400"
+                  }`}
+                />
+                <button
+                  type="submit"
+                  disabled={submittingComment || !newCommentText.trim()}
+                  className="px-3 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold hover:opacity-90 disabled:opacity-50 cursor-pointer shrink-0 flex items-center gap-1"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>{isAr ? "نشر" : "Envoyer"}</span>
+                </button>
+              </form>
+
+              {/* Real Comments List */}
+              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                {comments.length === 0 ? (
+                  <p className="text-[11px] text-center py-3 text-slate-400 dark:text-rose-300/50">
+                    {isAr
+                      ? "كن أول من يترك أثراً جميلاً هنا ♡"
+                      : "Soyez la première à partager vos pensées ♡"}
+                  </p>
+                ) : (
+                  comments.map((c) => {
+                    const isAuthor =
+                      currentUser &&
+                      (currentUser.id === c.authorId || currentUser.email === c.authorId);
+                    return (
+                      <div
+                        key={c.id}
+                        className={`p-2.5 rounded-xl text-xs space-y-1 ${
+                          dark ? "bg-[#22132a]" : "bg-rose-50/60"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 font-bold">
+                            <span>{c.authorAvatar || "🌸"}</span>
+                            <span className="text-slate-900 dark:text-rose-100">
+                              {c.authorName}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-[10px] text-slate-400">
+                            <span>
+                              {c.createdAt
+                                ? new Date(c.createdAt).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit"
+                                  })
+                                : ""}
+                            </span>
+                            {isAuthor && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteComment(c.id)}
+                                title="Supprimer"
+                                className="text-red-400 hover:text-red-600 cursor-pointer"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-slate-600 dark:text-rose-200/90 leading-relaxed text-[11px]">
+                          {c.content}
+                        </p>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </Card>
   );
 }

@@ -74,29 +74,59 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Column 2: Quick Navigation Links */}
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm font-semibold">
-            <Link to="/" className="hover:text-rose-500 transition-colors">
-              {t.nav.home}
-            </Link>
-            <Link to="/books" className="hover:text-rose-500 transition-colors">
-              {t.nav.books}
-            </Link>
-            <Link to="/articles" className="hover:text-rose-500 transition-colors">
-              {lang === "ar" ? "المقالات" : "Articles"}
-            </Link>
-            <Link to="/challenges" className="hover:text-rose-500 transition-colors">
-              {t.nav.challenges}
-            </Link>
-            <Link to="/about" className="hover:text-rose-500 transition-colors">
-              {t.nav.about}
-            </Link>
-            <Link
-              to="/contact"
-              className="hover:text-rose-500 transition-colors"
-            >
-              {t.nav.contact}
-            </Link>
+          {/* Column 2: Quick Navigation Links & Legal Links */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm font-semibold">
+              <Link to="/" className="hover:text-rose-500 transition-colors">
+                {t.nav.home}
+              </Link>
+              <Link to="/books" className="hover:text-rose-500 transition-colors">
+                {t.nav.books}
+              </Link>
+              <Link to="/articles" className="hover:text-rose-500 transition-colors">
+                {lang === "ar" ? "المقالات" : "Articles"}
+              </Link>
+              <Link to="/challenges" className="hover:text-rose-500 transition-colors">
+                {t.nav.challenges}
+              </Link>
+              <Link to="/about" className="hover:text-rose-500 transition-colors">
+                {t.nav.about}
+              </Link>
+              <Link to="/contact" className="hover:text-rose-500 transition-colors">
+                {t.nav.contact}
+              </Link>
+            </div>
+
+            {/* Legal / Compliance / Privacy Links (Prompt One Compliance) */}
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-[11px] opacity-75">
+              <Link to="/privacy" className="hover:underline hover:text-rose-500">
+                {lang === "ar" ? "سياسة الخصوصية" : "Politique de Confidentialité"}
+              </Link>
+              <span>•</span>
+              <Link to="/terms" className="hover:underline hover:text-rose-500">
+                {lang === "ar" ? "شروط الاستخدام" : "Conditions d'Utilisation"}
+              </Link>
+              <span>•</span>
+              <Link to="/refunds" className="hover:underline hover:text-rose-500">
+                {lang === "ar" ? "سياسة الإرجاع" : "Retours & Échanges"}
+              </Link>
+              <span>•</span>
+              <Link to="/cookies" className="hover:underline hover:text-rose-500">
+                {lang === "ar" ? "ملفات الكوكيز" : "Cookies"}
+              </Link>
+              <span>•</span>
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined" && window.__openGhaymaCookieSettings) {
+                    window.__openGhaymaCookieSettings();
+                  }
+                }}
+                className="hover:underline hover:text-rose-500 cursor-pointer font-medium"
+              >
+                {lang === "ar" ? "إعدادات الكوكيز ⚙️" : "Gestion des cookies"}
+              </button>
+            </div>
           </div>
 
           {/* Column 3: Instagram & Signature */}

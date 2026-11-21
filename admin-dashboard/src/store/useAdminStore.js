@@ -39,6 +39,7 @@ export const useAdminStore = create((set, get) => ({
   deliveryEnabled: false, // Deactivated by default until admin checks it in settings
   challenges: INITIAL_CHALLENGES,
   challengePosts: INITIAL_POSTS,
+  challengeComments: [],
   articles: INITIAL_ARTICLES,
   articleComments: INITIAL_COMMENTS,
   analytics: { totalVisits: 3120, challengeClicks: 1460, challengeSubscribers: 820, activeVisitors: 14 },
@@ -109,6 +110,7 @@ export const useAdminStore = create((set, get) => ({
   setDeliveryEnabled: (deliveryEnabled) => set({ deliveryEnabled }),
   setChallenges: (challenges) => set({ challenges }),
   setChallengePosts: (challengePosts) => set({ challengePosts }),
+  setChallengeComments: (challengeComments) => set({ challengeComments }),
   setArticles: (articles) => set({ articles }),
   setArticleComments: (articleComments) => set({ articleComments }),
   setAnalytics: (analytics) => set({ analytics }),

@@ -597,3 +597,33 @@ export async function deleteArticleComment(commentId) {
   await deleteDoc(doc(storeDb, "article_comments", commentId));
   await deleteDoc(doc(adminDb, "article_comments", commentId)).catch(() => {});
 }
+
+export function subscribeChallengeComments(callback) {
+  return onSnapshot(
+    collection(storeDb, "challenge_comments"),
+    (snapshot) => {
+      const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      callback(list);
+    },
+    (err) => {
+      console.warn("Challenge comments sub error:", err);
+      callback([]);
+    }
+  );
+}
+
+export async function deleteChallengeComment(commentId, postId) {
+  await deleteDoc(doc(storeDb, "challenge_comments", commentId));
+  await deleteDoc(doc(adminDb, "challenge_comments", commentId)).catch(() => {});
+  if (postId) {
+    try {
+      await updateDoc(doc(storeDb, "challenge_posts", postId), {
+        commentsCount: increment(-1)
+      }).catch(() => {});
+      await updateDoc(doc(adminDb, "challenge_posts", postId), {
+        commentsCount: increment(-1)
+      }).catch(() => {});
+    } catch (_) {}
+  }
+}

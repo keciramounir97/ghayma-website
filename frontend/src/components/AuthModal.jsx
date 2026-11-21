@@ -24,6 +24,7 @@ export default function AuthModal() {
   const [password, setPassword] = useState("");
   const [wilaya, setWilaya] = useState("16 - Alger (الجزائر)");
   const [avatar, setAvatar] = useState("🌸");
+  const [termsConsent, setTermsConsent] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const isRtl = lang === "ar";
@@ -31,6 +32,17 @@ export default function AuthModal() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (tab === "register" && !termsConsent) {
+      addToast(
+        lang === "ar"
+          ? "يرجى الموافقة على شروط الاستخدام وسياسة الخصوصية وتأكيد السن للمتابعة"
+          : "Veuillez accepter les conditions d'utilisation et la politique de confidentialité pour continuer",
+        "error"
+      );
+      return;
+    }
+
     setLoading(true);
 
     setTimeout(() => {
@@ -244,6 +256,29 @@ export default function AuthModal() {
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {tab === "register" && (
+            <div className="flex items-start gap-2.5 pt-1">
+              <input
+                type="checkbox"
+                id="authTermsConsent"
+                checked={termsConsent}
+                onChange={(e) => setTermsConsent(e.target.checked)}
+                className="mt-1 w-4 h-4 rounded border-rose-300 text-rose-500 focus:ring-rose-400 cursor-pointer"
+              />
+              <label htmlFor="authTermsConsent" className="text-xs text-slate-600 dark:text-rose-200/80 cursor-pointer leading-relaxed">
+                {lang === "ar" ? (
+                  <>
+                    أؤكد أن عمري 13 عاماً فما فوق، وأوافق على شروط الاستخدام وسياسة الخصوصية.
+                  </>
+                ) : (
+                  <>
+                    J'atteste avoir plus de 13 ans et j'accepte les conditions d'utilisation et la politique de confidentialité.
+                  </>
+                )}
+              </label>
             </div>
           )}
 

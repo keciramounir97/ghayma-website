@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Drawer from "@mui/material/Drawer";
 import Badge from "@mui/material/Badge";
 import IconButton from "@mui/material/IconButton";
 import Divider from "@mui/material/Divider";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
 import {
   Sparkles,
   Truck,
@@ -20,11 +24,18 @@ import {
   Mail,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
   Globe,
   User,
-  LogOut
+  LogOut,
+  Settings,
+  Shield,
+  Trash2,
+  AlertTriangle,
+  Heart
 } from "lucide-react";
 import { useAppContext } from "../context/AppContext.jsx";
+import { deleteUserAccountAndData } from "../firebase.js";
 import GhaymaLogo from "./GhaymaLogo.jsx";
 
 export default function Navbar() {
@@ -55,17 +66,82 @@ export default function Navbar() {
   const isRtl = lang === "ar";
   const ChevronIcon = isRtl ? ChevronLeft : ChevronRight;
 
+  const [discoverDropdownOpen, setDiscoverDropdownOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
+  const discoverRef = useRef(null);
+  const userDropdownRef = useRef(null);
+
+  // Close dropdowns on click outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (discoverRef.current && !discoverRef.current.contains(event.target)) {
+        setDiscoverDropdownOpen(false);
+      }
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+        setUserDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleDeleteAccount = async () => {
+    if (!currentUser) return;
+    setDeletingAccount(true);
+    try {
+      await deleteUserAccountAndData(currentUser.id || currentUser.email);
+      logoutUser();
+      setDeleteConfirmOpen(false);
+      setUserDropdownOpen(false);
+      addToast(
+        lang === "ar"
+          ? "تم مسح حسابكِ وبياناتكِ نهائياً بنجاح 🌸"
+          : "Votre compte et vos données ont été définitivement supprimés 🌸"
+      );
+    } catch (_) {
+      addToast("Erreur lors de la suppression du compte");
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
   const navLinks = [
     { to: "/", label: t.nav.home, icon: HomeIcon },
     { to: "/books", label: t.nav.books, icon: BookOpen },
     {
       to: "/articles",
-      label: lang === "ar" ? "المقالات والخواطر" : lang === "fr" ? "Articles" : "Articles",
+      label: lang === "ar" ? "المقالات والخواطر" : "Articles",
       icon: Feather
     },
     { to: "/challenges", label: t.nav.challenges, icon: Sparkles },
     { to: "/about", label: t.nav.about, icon: Feather },
     { to: "/contact", label: t.nav.contact, icon: Mail }
+  ];
+
+  const discoverMenuItems = [
+    {
+      to: "/articles",
+      label: lang === "ar" ? "المقالات والخواطر 🪶" : "Articles & Pensées 🪶",
+      desc: lang === "ar" ? "خواطر وتأملات وجدانية دافئة" : "Textes et réflexions de l'écrivaine"
+    },
+    {
+      to: "/challenges",
+      label: lang === "ar" ? "تحديات وروتين الفجر ✨" : "Défis & Prière du Fajr ✨",
+      desc: lang === "ar" ? "تحدي نوفمبر وبركة الصباح ومواقيت الصلاة" : "Calendrier, streak et horaires de prière"
+    },
+    {
+      to: "/about",
+      label: lang === "ar" ? "عن الكاتبة غيمة 🌸" : "À propos de l'Écrivaine 🌸",
+      desc: lang === "ar" ? "سيرة ghayma_rd ومسيرتها الأدبية" : "Biographie, valeurs et vision"
+    },
+    {
+      to: "/delivery",
+      label: lang === "ar" ? "أسعار التوصيل 69 ولاية 🚚" : "Tarifs de livraison 69 Wilayas 🚚",
+      desc: lang === "ar" ? "توصيل للمنزل أو المكتب لجميع ولايات الوطن" : "À domicile ou en agence"
+    }
   ];
 
   const handleLanguageSwitch = (code) => {
@@ -161,34 +237,112 @@ export default function Navbar() {
             <GhaymaLogo dark={dark} subtitle={logoSub} />
           </div>
 
-          {/* Center: Desktop Navigation Pills */}
+          {/* Center: Desktop Navigation with Dropdown to Save Space */}
           <nav className="hidden lg:flex items-center gap-1.5">
-            {navLinks.map((item) => {
-              const Icon = item.icon;
-              const active =
-                item.to === "/"
-                  ? location.pathname === "/"
-                  : location.pathname.startsWith(item.to);
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all ${
-                    active
-                      ? "bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md shadow-rose-500/25"
-                      : dark
-                      ? "text-rose-100/80 hover:text-white hover:bg-rose-950/50"
-                      : "text-slate-700 hover:text-rose-600 hover:bg-rose-50"
+            <Link
+              to="/"
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                location.pathname === "/"
+                  ? "bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md shadow-rose-500/25"
+                  : dark
+                  ? "text-rose-100/80 hover:text-white hover:bg-rose-950/50"
+                  : "text-slate-700 hover:text-rose-600 hover:bg-rose-50"
+              }`}
+            >
+              <HomeIcon className="w-4 h-4" />
+              <span>{t.nav.home}</span>
+            </Link>
+
+            <Link
+              to="/books"
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                location.pathname.startsWith("/book")
+                  ? "bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md shadow-rose-500/25"
+                  : dark
+                  ? "text-rose-100/80 hover:text-white hover:bg-rose-950/50"
+                  : "text-slate-700 hover:text-rose-600 hover:bg-rose-50"
+              }`}
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>{t.nav.books}</span>
+            </Link>
+
+            {/* DÉCOUVRIR DROPDOWN (Articles, Défis, À propos, Tarifs) */}
+            <div className="relative" ref={discoverRef}>
+              <button
+                type="button"
+                onClick={() => setDiscoverDropdownOpen(!discoverDropdownOpen)}
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all cursor-pointer ${
+                  location.pathname === "/articles" ||
+                  location.pathname === "/challenges" ||
+                  location.pathname === "/about" ||
+                  location.pathname === "/delivery"
+                    ? "bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md shadow-rose-500/25"
+                    : dark
+                    ? "text-rose-100/80 hover:text-white hover:bg-rose-950/50"
+                    : "text-slate-700 hover:text-rose-600 hover:bg-rose-50"
+                }`}
+              >
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <span>{lang === "ar" ? "استكشفي 🌸" : "Découvrir"}</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                    discoverDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {discoverDropdownOpen && (
+                <div
+                  className={`absolute ${
+                    isRtl ? "right-0" : "left-0"
+                  } mt-2 w-72 rounded-3xl shadow-2xl border p-3 z-50 backdrop-blur-xl animate-fade-in ${
+                    dark
+                      ? "bg-[#1d1224]/95 border-rose-900/60 text-rose-50"
+                      : "bg-white/95 border-rose-100 text-slate-800"
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
+                  <div className="space-y-1">
+                    {discoverMenuItems.map((item) => (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setDiscoverDropdownOpen(false)}
+                        className={`block p-3 rounded-2xl transition-all ${
+                          location.pathname === item.to
+                            ? "bg-rose-500/15 text-rose-600 dark:text-rose-400 font-bold"
+                            : dark
+                            ? "hover:bg-rose-950/50 text-rose-100/90"
+                            : "hover:bg-rose-50 text-slate-700"
+                        }`}
+                      >
+                        <div className="text-xs font-bold leading-tight">{item.label}</div>
+                        <div className="text-[11px] text-slate-500 dark:text-rose-300/70 mt-0.5">
+                          {item.desc}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Link
+              to="/contact"
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                location.pathname === "/contact"
+                  ? "bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md shadow-rose-500/25"
+                  : dark
+                  ? "text-rose-100/80 hover:text-white hover:bg-rose-950/50"
+                  : "text-slate-700 hover:text-rose-600 hover:bg-rose-50"
+              }`}
+            >
+              <Mail className="w-4 h-4" />
+              <span>{t.nav.contact}</span>
+            </Link>
           </nav>
 
-          {/* Right Controls: Desktop Language & Theme (Hidden on mobile so they live cleanly inside the Hamburger Drawer!) + Notifications + Order CTA */}
+          {/* Right Controls: Desktop Language & Theme + Notifications + User Account Dropdown + Order CTA */}
           <div className="flex items-center gap-2 shrink-0">
             {/* Desktop-only Language Switcher */}
             <div
@@ -314,32 +468,134 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* User Account / Login Button */}
+            {/* USER ACCOUNT DROPDOWN (Logged in vs Logged out) */}
             {currentUser ? (
-              <div className="flex items-center gap-1.5 p-1 rounded-full border border-rose-500/25 bg-rose-500/10">
-                <span className="w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center text-sm font-bold shadow-xs">
-                  {currentUser.avatar || "🌸"}
-                </span>
-                <span className="text-xs font-bold text-slate-800 dark:text-rose-100 hidden md:inline px-1">
-                  {currentUser.name}
-                </span>
+              <div className="relative" ref={userDropdownRef}>
                 <button
                   type="button"
-                  onClick={logoutUser}
-                  title="Se déconnecter"
-                  className="p-1.5 rounded-full text-rose-500 hover:bg-rose-500/20 transition-colors cursor-pointer"
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-full border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 transition-all cursor-pointer"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
+                  <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rose-500 text-white flex items-center justify-center text-sm font-bold shadow-xs">
+                    {currentUser.avatar || "🌸"}
+                  </span>
+                  <span className="text-xs font-bold text-slate-800 dark:text-rose-100 hidden sm:inline max-w-[100px] truncate">
+                    {currentUser.name}
+                  </span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 text-rose-500 transition-transform ${
+                      userDropdownOpen ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
+
+                {/* Rich User Account Dropdown Menu */}
+                {userDropdownOpen && (
+                  <div
+                    className={`absolute ${
+                      isRtl ? "left-0" : "right-0"
+                    } mt-3 w-76 sm:w-80 rounded-3xl shadow-2xl border p-4 z-50 backdrop-blur-xl animate-fade-in ${
+                      dark
+                        ? "bg-[#1d1224]/98 border-rose-900/60 text-rose-50"
+                        : "bg-white/98 border-rose-100 text-slate-800"
+                    }`}
+                  >
+                    {/* User Profile Card */}
+                    <div className="flex items-center gap-3 pb-3 mb-3 border-b border-rose-500/15">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 text-white flex items-center justify-center text-2xl shadow-md shrink-0">
+                        {currentUser.avatar || "🌸"}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold text-sm text-slate-900 dark:text-white truncate">
+                          {currentUser.name}
+                        </div>
+                        <div className="text-[11px] text-slate-500 dark:text-rose-300/70 truncate">
+                          {currentUser.email || "Membre Ghayma"}
+                        </div>
+                        <div className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-500 mt-0.5">
+                          <Sparkles className="w-3 h-3 text-amber-400" />
+                          <span>{lang === "ar" ? "قارئة غيمة الوفية ♡" : "Lectrice Ghayma ♡"}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quick Profile Links */}
+                    <div className="space-y-1 text-xs">
+                      <Link
+                        to="/challenges"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className={`flex items-center gap-2.5 p-2.5 rounded-xl transition-all ${
+                          dark ? "hover:bg-rose-950/60" : "hover:bg-rose-50"
+                        }`}
+                      >
+                        <Sparkles className="w-4 h-4 text-amber-500" />
+                        <span>{lang === "ar" ? "تحدياتي وروتيني اليومي" : "Mes Défis & Routines"}</span>
+                      </Link>
+
+                      <Link
+                        to="/articles"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className={`flex items-center gap-2.5 p-2.5 rounded-xl transition-all ${
+                          dark ? "hover:bg-rose-950/60" : "hover:bg-rose-50"
+                        }`}
+                      >
+                        <Feather className="w-4 h-4 text-rose-500" />
+                        <span>{lang === "ar" ? "المقالات والخواطر" : "Articles & Réflexions"}</span>
+                      </Link>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserDropdownOpen(false);
+                          if (window.__openGhaymaCookieSettings) {
+                            window.__openGhaymaCookieSettings();
+                          }
+                        }}
+                        className={`w-full flex items-center gap-2.5 p-2.5 rounded-xl transition-all text-start cursor-pointer ${
+                          dark ? "hover:bg-rose-950/60" : "hover:bg-rose-50"
+                        }`}
+                      >
+                        <Settings className="w-4 h-4 text-slate-400" />
+                        <span>{lang === "ar" ? "إعدادات الخصوصية والكوكيز" : "Cookies & Confidentialité"}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserDropdownOpen(false);
+                          setDeleteConfirmOpen(true);
+                        }}
+                        className={`w-full flex items-center gap-2.5 p-2.5 rounded-xl transition-all text-start text-red-500 hover:bg-red-500/10 cursor-pointer`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>{lang === "ar" ? "حذف حسابي وبياناتي (RGPD)" : "Supprimer mon compte (RGPD)"}</span>
+                      </button>
+                    </div>
+
+                    <div className="pt-2 mt-2 border-t border-rose-500/15">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserDropdownOpen(false);
+                          logoutUser();
+                        }}
+                        className="w-full flex items-center justify-center gap-2 p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-300 text-xs font-bold transition-all cursor-pointer"
+                      >
+                        <LogOut className="w-3.5 h-3.5" />
+                        <span>{lang === "ar" ? "تسجيل الخروج" : "Se déconnecter"}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => setAuthModalOpen(true)}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-rose-500/30 text-rose-600 dark:text-rose-300 hover:bg-rose-500 hover:text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-rose-500/30 text-rose-600 dark:text-rose-300 hover:bg-rose-500 hover:text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
               >
                 <User className="w-3.5 h-3.5" />
-                <span>{lang === "ar" ? "حسابي / دخول" : "Espace Membre"}</span>
+                <span className="hidden sm:inline">{lang === "ar" ? "حسابي / دخول" : "Espace Membre"}</span>
               </button>
             )}
 
@@ -354,6 +610,61 @@ export default function Navbar() {
           </div>
         </div>
       </header>
+
+      {/* ACCOUNT DELETION CONFIRMATION DIALOG (GDPR / PRIVACY - PROMPT ONE #20 & PROMPT AUDIT) */}
+      <Dialog
+        open={deleteConfirmOpen}
+        onClose={() => !deletingAccount && setDeleteConfirmOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: "28px",
+            bgcolor: dark ? "#1a1022" : "#ffffff",
+            color: dark ? "#fff1f2" : "#0f172a",
+            maxWidth: 420,
+            p: 1
+          }
+        }}
+      >
+        <DialogTitle className="flex items-center gap-2 text-red-500 border-b border-rose-500/15 pb-3">
+          <AlertTriangle className="w-5 h-5 shrink-0" />
+          <span className="font-editorial text-lg font-bold">
+            {lang === "ar"
+              ? "حذف الحساب والبيانات نهائياً (RGPD)"
+              : "Suppression définitive du compte"}
+          </span>
+        </DialogTitle>
+        <DialogContent className="pt-4 space-y-3 text-xs leading-relaxed">
+          <p>
+            {lang === "ar"
+              ? "هل أنتِ متأكدة من رغبتكِ في مسح حسابكِ؟ سيتم مسح روتينكِ اليومي، وسجلاتكِ، وتعليقاتكِ نهائياً من قاعدة البيانات وفقاً للائحة حماية البيانات الشخصية."
+              : "Cette action est irréversible. Vos routines, votre participation aux défis et vos données seront supprimées de manière sécurisée conformément au RGPD."}
+          </p>
+        </DialogContent>
+        <DialogActions className="border-t border-rose-500/15 p-3 flex justify-between">
+          <button
+            type="button"
+            disabled={deletingAccount}
+            onClick={() => setDeleteConfirmOpen(false)}
+            className="px-4 py-2 rounded-full border border-slate-300 dark:border-rose-900/50 text-xs font-bold text-slate-700 dark:text-rose-200 hover:bg-slate-100 cursor-pointer"
+          >
+            {lang === "ar" ? "إلغاء" : "Annuler"}
+          </button>
+          <button
+            type="button"
+            disabled={deletingAccount}
+            onClick={handleDeleteAccount}
+            className="px-4 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md cursor-pointer transition-all disabled:opacity-50"
+          >
+            {deletingAccount
+              ? lang === "ar"
+                ? "جارٍ الحذف..."
+                : "Suppression..."
+              : lang === "ar"
+              ? "نعم، حذف نهائي"
+              : "Confirmer la suppression"}
+          </button>
+        </DialogActions>
+      </Dialog>
 
       {/* ==================================================================== */}
       {/* RETRACTABLE HAMBURGER DRAWER (With Theme & Language Controls Inside) */}

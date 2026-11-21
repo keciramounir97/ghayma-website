@@ -23,7 +23,8 @@ import {
   Search,
   Flame,
   Bookmark,
-  Share2
+  Share2,
+  MessageCircle
 } from "lucide-react";
 import { useAdminContext } from "../context/AdminContext.jsx";
 import {
@@ -31,6 +32,7 @@ import {
   deleteChallengeFromFirestore,
   savePostToFirestore,
   deletePostFromFirestore,
+  deleteChallengeComment,
   compressImageFile
 } from "../firebase.js";
 
@@ -41,6 +43,7 @@ export default function ChallengesAdminPage() {
     dark,
     challenges,
     challengePosts,
+    challengeComments = [],
     analytics,
     addToast
   } = useAdminContext();
@@ -516,15 +519,53 @@ export default function ChallengesAdminPage() {
                 </p>
               </div>
 
-              <div className="p-4 border-t border-rose-500/10 flex items-center justify-between text-xs">
-                <span className="flex items-center gap-1 text-rose-500 font-bold">
-                  <Heart className="w-3.5 h-3.5 fill-rose-500" />
-                  <span>{post.likesCount || 0}</span>
-                </span>
-                <span className="flex items-center gap-1 text-amber-500 font-bold">
-                  <Sparkles className="w-3.5 h-3.5 fill-amber-400" />
-                  <span>{post.sparksCount || 0}</span>
-                </span>
+              <div className="p-4 border-t border-rose-500/10 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-rose-500 font-bold">
+                    <Heart className="w-3.5 h-3.5 fill-rose-500" />
+                    <span>{post.likesCount || 0} J'aime</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 text-purple-600 dark:text-purple-300 font-bold">
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>
+                      {challengeComments.filter((c) => c.postId === post.id).length} Commentaires
+                    </span>
+                  </span>
+                </div>
+
+                {/* Display Comments List for this post */}
+                {challengeComments.filter((c) => c.postId === post.id).length > 0 && (
+                  <div className="mt-2 space-y-1.5 max-h-36 overflow-y-auto pt-2 border-t border-rose-500/10">
+                    {challengeComments
+                      .filter((c) => c.postId === post.id)
+                      .map((comm) => (
+                        <div
+                          key={comm.id}
+                          className={`p-2 rounded-xl text-[11px] flex items-start justify-between gap-2 ${
+                            dark ? "bg-[#25172e]" : "bg-rose-50/70"
+                          }`}
+                        >
+                          <div>
+                            <div className="font-bold flex items-center gap-1 text-slate-900 dark:text-rose-100">
+                              <span>{comm.authorAvatar || "🌸"}</span>
+                              <span>{comm.authorName}</span>
+                            </div>
+                            <p className="opacity-80 mt-0.5">{comm.content}</p>
+                          </div>
+                          <IconButton
+                            size="small"
+                            onClick={async () => {
+                              await deleteChallengeComment(comm.id, post.id);
+                              addToast("Commentaire supprimé");
+                            }}
+                            sx={{ color: "#ef4444", p: 0.5 }}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </IconButton>
+                        </div>
+                      ))}
+                  </div>
+                )}
               </div>
             </Card>
           ))}

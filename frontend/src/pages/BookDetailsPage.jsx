@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import Card from "@mui/material/Card";
 import Chip from "@mui/material/Chip";
 import {
@@ -9,7 +9,8 @@ import {
   Minus,
   Plus,
   Home as HomeIcon,
-  Building2
+  Building2,
+  ShieldCheck
 } from "lucide-react";
 import { useAppContext } from "../context/AppContext.jsx";
 import { INITIAL_BOOKS } from "../data/initialData.js";
@@ -21,6 +22,7 @@ import {
   getWilayaById
 } from "../data/algeriaGeo.js";
 import { createOrder } from "../firebase.js";
+import { checkRateLimit } from "../utils/rateLimiter.js";
 
 export default function BookDetailsPage() {
   const { id } = useParams();
@@ -68,6 +70,7 @@ export default function BookDetailsPage() {
   const [address, setAddress] = useState("");
   const [deliveryType, setDeliveryType] = useState("home");
   const [notes, setNotes] = useState("");
+  const [orderConsent, setOrderConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [orderDone, setOrderDone] = useState(null);
 
@@ -133,6 +136,22 @@ export default function BookDetailsPage() {
           : "Veuillez remplir tous les champs obligatoires",
         "error"
       );
+      return;
+    }
+
+    if (!orderConsent) {
+      addToast(
+        lang === "ar"
+          ? "يرجى الموافقة على شروط الطلب وسياسة الخصوصية للمتابعة"
+          : "Veuillez accepter les conditions de commande pour continuer",
+        "error"
+      );
+      return;
+    }
+
+    const rateCheck = checkRateLimit("order");
+    if (!rateCheck.allowed) {
+      addToast(rateCheck.message, "error");
       return;
     }
 
@@ -811,6 +830,44 @@ export default function BookDetailsPage() {
                   <span>{t.orderForm.totalPrice}:</span>
                   <span>{formatDzd(totalAmount)}</span>
                 </div>
+              </div>
+
+              {/* Explicit Order Consent (Prompt One Requirement #6) */}
+              <div className="flex items-start gap-2.5 pt-1">
+                <input
+                  type="checkbox"
+                  id="orderConsent"
+                  checked={orderConsent}
+                  onChange={(e) => setOrderConsent(e.target.checked)}
+                  className="mt-1 w-4 h-4 rounded border-rose-300 text-rose-500 focus:ring-rose-400 cursor-pointer"
+                />
+                <label htmlFor="orderConsent" className="text-xs text-slate-600 dark:text-rose-200/80 cursor-pointer leading-relaxed">
+                  {lang === "ar" ? (
+                    <>
+                      أوافق على{" "}
+                      <Link to="/terms" target="_blank" className="text-rose-500 underline font-semibold">
+                        شروط الاستخدام
+                      </Link>{" "}
+                      (الدفع عند الاستلام DZD)، وعلى معالجة بياناتي للشحن وفقاً لـ{" "}
+                      <Link to="/privacy" target="_blank" className="text-rose-500 underline font-semibold">
+                        سياسة الخصوصية
+                      </Link>
+                      .
+                    </>
+                  ) : (
+                    <>
+                      J'accepte les{" "}
+                      <Link to="/terms" target="_blank" className="text-rose-500 underline font-semibold">
+                        Conditions Générales
+                      </Link>{" "}
+                      (Paiement à la livraison) et le traitement de mes données pour l'expédition selon la{" "}
+                      <Link to="/privacy" target="_blank" className="text-rose-500 underline font-semibold">
+                        Politique de Confidentialité
+                      </Link>
+                      .
+                    </>
+                  )}
+                </label>
               </div>
 
               <button

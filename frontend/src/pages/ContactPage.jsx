@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Card from "@mui/material/Card";
-import { Instagram, MapPin, Mail, Send } from "lucide-react";
+import { Instagram, MapPin, Mail, Send, ShieldCheck } from "lucide-react";
 import { useAppContext } from "../context/AppContext.jsx";
 import { createContactMessage } from "../firebase.js";
+import { checkRateLimit } from "../utils/rateLimiter.js";
 
 export default function ContactPage() {
   const { lang, t, dark, about, addToast, addNotification } = useAppContext();
@@ -11,11 +13,27 @@ export default function ContactPage() {
   const [contactInfo, setContactInfo] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [consent, setConsent] = useState(false);
   const [sending, setSending] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim() || !contactInfo.trim() || !message.trim()) return;
+
+    if (!consent) {
+      addToast(
+        lang === "ar"
+          ? "يرجى الموافقة على سياسة الخصوصية للمتابعة"
+          : "Veuillez accepter la politique de confidentialité pour envoyer votre message"
+      );
+      return;
+    }
+
+    const rateCheck = checkRateLimit("message");
+    if (!rateCheck.allowed) {
+      addToast(rateCheck.message);
+      return;
+    }
 
     setSending(true);
     try {
@@ -35,6 +53,7 @@ export default function ContactPage() {
       setContactInfo("");
       setSubject("");
       setMessage("");
+      setConsent(false);
     } catch (err) {
       console.error("Contact error:", err);
       addToast("Error sending message", "error");
@@ -198,6 +217,36 @@ export default function ContactPage() {
                     : "bg-rose-50/40 border-rose-200 text-slate-800"
                 }`}
               />
+            </div>
+
+            {/* Explicit Consent Control (Prompt One Requirement #6) */}
+            <div className="flex items-start gap-2.5 pt-1">
+              <input
+                type="checkbox"
+                id="contactConsent"
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+                className="mt-1 w-4 h-4 rounded border-rose-300 text-rose-500 focus:ring-rose-400 cursor-pointer"
+              />
+              <label htmlFor="contactConsent" className="text-xs text-slate-600 dark:text-rose-200/80 cursor-pointer leading-relaxed">
+                {lang === "ar" ? (
+                  <>
+                    أوافق على معالجة اسمي وبريدي الإلكتروني للإجابة على رسالتي وفقاً لـ{" "}
+                    <Link to="/privacy" target="_blank" className="text-rose-500 underline font-semibold">
+                      سياسة الخصوصية
+                    </Link>
+                    .
+                  </>
+                ) : (
+                  <>
+                    J'accepte que mes coordonnées soient traitées pour répondre à ma demande conformément à la{" "}
+                    <Link to="/privacy" target="_blank" className="text-rose-500 underline font-semibold">
+                      Politique de Confidentialité
+                    </Link>
+                    .
+                  </>
+                )}
+              </label>
             </div>
 
             <button

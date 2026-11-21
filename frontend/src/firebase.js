@@ -9,10 +9,13 @@ import {
   setDoc,
   addDoc,
   updateDoc,
+  deleteDoc,
   onSnapshot,
   increment,
   arrayUnion
 } from "firebase/firestore";
+import { sanitizeText, sanitizeOrderPayload } from "./utils/sanitize.js";
+import { logger } from "./utils/logger.js";
 import {
   INITIAL_BOOKS,
   INITIAL_ABOUT,
@@ -254,8 +257,9 @@ export function subscribeDeliveryWilayas(callback) {
 }
 
 export async function createOrder(orderData) {
+  const cleanOrder = sanitizeOrderPayload(orderData);
   const payload = {
-    ...orderData,
+    ...cleanOrder,
     status: "pending",
     createdAt: new Date().toISOString()
   };
@@ -264,12 +268,17 @@ export async function createOrder(orderData) {
     id: docRef.id,
     ...payload
   }).catch(() => {});
+  logger.audit("CREATE_ORDER", cleanOrder.clientName, { orderId: docRef.id, wilaya: cleanOrder.wilaya });
   return docRef.id;
 }
 
 export async function createContactMessage(msgData) {
   const payload = {
-    ...msgData,
+    name: sanitizeText(msgData.name || "", 120),
+    email: sanitizeText(msgData.email || "", 120),
+    phone: sanitizeText(msgData.phone || "", 30),
+    subject: sanitizeText(msgData.subject || "", 150),
+    message: sanitizeText(msgData.message || "", 2500),
     read: false,
     createdAt: new Date().toISOString()
   };
@@ -278,6 +287,7 @@ export async function createContactMessage(msgData) {
     id: docRef.id,
     ...payload
   }).catch(() => {});
+  logger.audit("CREATE_MESSAGE", payload.email, { messageId: docRef.id });
   return docRef.id;
 }
 
@@ -463,9 +473,10 @@ export async function addArticleComment(articleId, commentData) {
   const newComment = {
     id: "com-" + Date.now(),
     articleId,
-    authorName: commentData.authorName || "قارئة غيمة",
+    authorId: commentData.authorId || null,
+    authorName: sanitizeText(commentData.authorName || "قارئة غيمة", 80),
     authorAvatar: commentData.authorAvatar || "🌸",
-    content: commentData.content || "",
+    content: sanitizeText(commentData.content || "", 1500),
     createdAt: new Date().toISOString()
   };
   try {
@@ -477,10 +488,28 @@ export async function addArticleComment(articleId, commentData) {
     await updateDoc(doc(adminDb, "articles", articleId), {
       commentsCount: increment(1)
     }).catch(() => {});
+    logger.audit("ADD_ARTICLE_COMMENT", newComment.authorName, { articleId });
   } catch (err) {
     console.warn("Add comment error:", err);
   }
   return newComment;
+}
+
+export async function deleteArticleComment(commentId, articleId) {
+  try {
+    await deleteDoc(doc(db, "article_comments", commentId));
+    await deleteDoc(doc(adminDb, "article_comments", commentId)).catch(() => {});
+    if (articleId) {
+      await updateDoc(doc(db, "articles", articleId), {
+        commentsCount: increment(-1)
+      }).catch(() => {});
+      await updateDoc(doc(adminDb, "articles", articleId), {
+        commentsCount: increment(-1)
+      }).catch(() => {});
+    }
+  } catch (err) {
+    console.warn("Delete comment error:", err);
+  }
 }
 
 export async function likeArticle(articleId) {
@@ -494,12 +523,112 @@ export async function likeArticle(articleId) {
   } catch (_) {}
 }
 
+// REAL CHALLENGE POSTS COMMENTS & LIKES
+export function subscribeChallengeComments(postId, callback) {
+  return onSnapshot(
+    collection(db, "challenge_comments"),
+    (snapshot) => {
+      const all = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const filtered = all
+        .filter((c) => c.postId === postId)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      callback(filtered);
+    },
+    (err) => {
+      console.warn("Challenge comments sub error:", err);
+      callback([]);
+    }
+  );
+}
+
+export async function addChallengeComment(postId, commentData) {
+  const newComment = {
+    id: "ch-com-" + Date.now(),
+    postId,
+    authorId: commentData.authorId || null,
+    authorName: sanitizeText(commentData.authorName || "قارئة غيمة", 80),
+    authorAvatar: commentData.authorAvatar || "🌸",
+    content: sanitizeText(commentData.content || "", 1500),
+    createdAt: new Date().toISOString()
+  };
+  try {
+    await setDoc(doc(db, "challenge_comments", newComment.id), newComment);
+    await setDoc(doc(adminDb, "challenge_comments", newComment.id), newComment).catch(() => {});
+    await updateDoc(doc(db, "challenge_posts", postId), {
+      commentsCount: increment(1)
+    }).catch(() => {});
+    await updateDoc(doc(adminDb, "challenge_posts", postId), {
+      commentsCount: increment(1)
+    }).catch(() => {});
+    logger.audit("ADD_CHALLENGE_COMMENT", newComment.authorName, { postId });
+  } catch (err) {
+    console.warn("Add challenge comment error:", err);
+  }
+  return newComment;
+}
+
+export async function deleteChallengeComment(commentId, postId) {
+  try {
+    await deleteDoc(doc(db, "challenge_comments", commentId));
+    await deleteDoc(doc(adminDb, "challenge_comments", commentId)).catch(() => {});
+    if (postId) {
+      await updateDoc(doc(db, "challenge_posts", postId), {
+        commentsCount: increment(-1)
+      }).catch(() => {});
+      await updateDoc(doc(adminDb, "challenge_posts", postId), {
+        commentsCount: increment(-1)
+      }).catch(() => {});
+    }
+  } catch (err) {
+    console.warn("Delete challenge comment error:", err);
+  }
+}
+
+export async function toggleLikeChallengePost(postId, userId) {
+  if (!postId) return;
+  const userKey = userId || "guest_" + (typeof window !== "undefined" ? window.localStorage.getItem("ghayma_guest_id") || "guest" : "guest");
+  const likeDocId = `${postId}_${userKey}`;
+  const likeRef = doc(db, "challenge_likes", likeDocId);
+
+  try {
+    const snap = await getDoc(likeRef);
+    if (snap.exists()) {
+      // User already liked -> Unlike
+      await deleteDoc(likeRef);
+      await updateDoc(doc(db, "challenge_posts", postId), {
+        likesCount: increment(-1)
+      }).catch(() => {});
+      await updateDoc(doc(adminDb, "challenge_posts", postId), {
+        likesCount: increment(-1)
+      }).catch(() => {});
+      return { liked: false };
+    } else {
+      // New like
+      await setDoc(likeRef, {
+        postId,
+        userId: userKey,
+        createdAt: new Date().toISOString()
+      });
+      await updateDoc(doc(db, "challenge_posts", postId), {
+        likesCount: increment(1)
+      }).catch(() => {});
+      await updateDoc(doc(adminDb, "challenge_posts", postId), {
+        likesCount: increment(1)
+      }).catch(() => {});
+      return { liked: true };
+    }
+  } catch (err) {
+    console.warn("Like challenge post error:", err);
+    return { liked: false };
+  }
+}
+
 export async function saveUserRoutine(userId, routineText) {
   if (!userId || !routineText) return null;
   const routine = {
     id: "rtn-" + Date.now(),
     userId,
-    text: routineText,
+    text: sanitizeText(routineText, 300),
     completed: false,
     createdAt: new Date().toISOString()
   };
@@ -507,4 +636,46 @@ export async function saveUserRoutine(userId, routineText) {
     await setDoc(doc(db, "user_routines", routine.id), routine);
   } catch (_) {}
   return routine;
+}
+
+// USER DATA DELETION WORKFLOW (GDPR / PRIVACY - PROMPT ONE REQUIREMENT #20 & PROMPT AUDIT)
+export async function deleteUserAccountAndData(userId) {
+  if (!userId) return false;
+  try {
+    // 1. Delete user routines
+    const routinesSnap = await getDocs(collection(db, "user_routines"));
+    for (const d of routinesSnap.docs) {
+      if (d.data().userId === userId) {
+        await deleteDoc(doc(db, "user_routines", d.id)).catch(() => {});
+      }
+    }
+
+    // 2. Anonymize/delete user comments
+    const artCommentsSnap = await getDocs(collection(db, "article_comments"));
+    for (const d of artCommentsSnap.docs) {
+      if (d.data().authorId === userId) {
+        await deleteDoc(doc(db, "article_comments", d.id)).catch(() => {});
+      }
+    }
+
+    const chCommentsSnap = await getDocs(collection(db, "challenge_comments"));
+    for (const d of chCommentsSnap.docs) {
+      if (d.data().authorId === userId) {
+        await deleteDoc(doc(db, "challenge_comments", d.id)).catch(() => {});
+      }
+    }
+
+    // 3. Clear local storage
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("ghayma_user_session");
+      window.localStorage.removeItem("ghayma_fajr_streak");
+      window.localStorage.removeItem("ghayma_user_routines");
+    }
+
+    logger.audit("DELETE_USER_DATA", userId, { status: "success" });
+    return true;
+  } catch (err) {
+    console.error("Account deletion error:", err);
+    return false;
+  }
 }
