@@ -116,14 +116,38 @@ export function AdminProvider({ children }) {
           primary: {
             main: "#f43f5e",
             light: "#fb7185",
-            dark: "#e11d48"
+            dark: "#e11d48",
+            contrastText: "#ffffff"
           },
           secondary: {
-            main: "#f59e0b"
+            main: "#f59e0b",
+            contrastText: "#ffffff"
           },
           background: {
-            default: dark ? "#110b15" : "#fdf8fa",
-            paper: dark ? "#1a1121" : "#ffffff"
+            default: dark ? "#0f0913" : "#fdf8fa",
+            paper: dark ? "#180f1f" : "#ffffff"
+          },
+          text: {
+            primary: dark ? "#fff1f2" : "#0f172a",
+            secondary: dark ? "#fda4af" : "#64748b"
+          }
+        },
+        components: {
+          MuiCard: {
+            styleOverrides: {
+              root: {
+                backgroundImage: "none",
+                transition: "box-shadow 250ms ease, border-color 250ms ease"
+              }
+            }
+          },
+          MuiDialog: {
+            styleOverrides: {
+              paper: {
+                borderRadius: 24,
+                backgroundImage: "none"
+              }
+            }
           }
         },
         shape: {

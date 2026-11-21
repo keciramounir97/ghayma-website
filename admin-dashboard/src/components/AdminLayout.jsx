@@ -147,27 +147,32 @@ export default function AdminLayout({ children }) {
             <Link
               to="/"
               onClick={() => setSidebarOpen(false)}
-              className="flex items-center gap-2.5 shrink-0 select-none overflow-hidden"
+              className="flex items-center gap-2.5 shrink-0 select-none overflow-hidden group"
             >
-              <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 via-pink-500 to-amber-400 flex items-center justify-center text-white shadow-md shadow-rose-500/25 shrink-0">
-                <Cloud className="w-5 h-5 fill-white/25 stroke-[2.2]" />
-                <Feather className="w-3.5 h-3.5 absolute -bottom-0.5 -right-0.5 text-amber-100 drop-shadow" />
+              <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-500 via-pink-400 to-amber-300 p-[2px] shadow-md shadow-rose-500/25 group-hover:scale-105 transition-all shrink-0">
+                <div
+                  className={`w-full h-full rounded-[14px] flex items-center justify-center relative overflow-hidden ${
+                    dark ? "bg-gradient-to-b from-[#1b1022] to-[#120917]" : "bg-gradient-to-b from-white to-rose-50/50"
+                  }`}
+                >
+                  <Cloud className="w-5 h-5 text-rose-400/30 fill-rose-300/25 absolute -bottom-0.5" />
+                  <Feather className="w-4 h-4 text-rose-500 -rotate-12 relative z-10 drop-shadow-xs" />
+                  <Sparkles className="w-2.5 h-2.5 text-amber-400 absolute top-1 right-1 animate-pulse" />
+                </div>
               </div>
               {!collapsed && (
                 <div className="flex flex-col leading-none whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      dir="ltr"
-                      className="font-editorial text-lg sm:text-xl font-bold tracking-tight bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 bg-clip-text text-transparent"
-                    >
+                  <div className="flex items-center gap-1.5" dir="ltr">
+                    <span className="font-editorial text-lg sm:text-xl font-bold tracking-tight bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 bg-clip-text text-transparent">
                       ghayma_rd
                     </span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-500/15 text-rose-500 font-bold">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-500/15 text-rose-500 font-bold border border-rose-500/25">
                       غيمة
                     </span>
                   </div>
-                  <span className="text-[10px] opacity-65 font-semibold tracking-wider uppercase mt-0.5">
-                    Admin Studio ✨
+                  <span className="text-[10px] text-rose-500/80 font-bold tracking-wider uppercase mt-1 flex items-center gap-1">
+                    <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+                    <span>Admin Studio</span>
                   </span>
                 </div>
               )}
@@ -449,17 +454,26 @@ export default function AdminLayout({ children }) {
             {/* Compact non-wrapping logo on mobile header */}
             <Link
               to="/"
-              className="flex lg:hidden items-center gap-2 shrink-0 whitespace-nowrap"
+              className="flex lg:hidden items-center gap-2 shrink-0 whitespace-nowrap group"
             >
-              <div className="relative w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 via-pink-500 to-amber-400 flex items-center justify-center text-white shadow-sm shrink-0">
-                <Cloud className="w-4 h-4 fill-white/25 stroke-[2.2]" />
+              <div className="relative w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 via-pink-400 to-amber-300 p-[1.5px] shadow-sm shrink-0">
+                <div
+                  className={`w-full h-full rounded-[9px] flex items-center justify-center relative overflow-hidden ${
+                    dark ? "bg-[#1b1022]" : "bg-white"
+                  }`}
+                >
+                  <Cloud className="w-4 h-4 text-rose-400/30 fill-rose-300/25 absolute -bottom-0.5" />
+                  <Feather className="w-3.5 h-3.5 text-rose-500 -rotate-12 relative z-10" />
+                </div>
               </div>
-              <span
-                dir="ltr"
-                className="font-editorial text-base font-bold bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent"
-              >
-                ghayma_rd
-              </span>
+              <div className="flex items-center gap-1" dir="ltr">
+                <span className="font-editorial text-base font-bold bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 bg-clip-text text-transparent">
+                  ghayma_rd
+                </span>
+                <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-rose-500/15 text-rose-500 font-bold">
+                  Studio
+                </span>
+              </div>
             </Link>
 
             <nav

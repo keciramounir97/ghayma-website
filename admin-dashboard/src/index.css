@@ -2,6 +2,10 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+html {
+  scroll-behavior: smooth;
+}
+
 @layer base {
   :root {
     --font-ar: 'Tajawal', sans-serif;
