@@ -215,12 +215,28 @@ export default function OrderTicketModal() {
           >
             <div className="flex items-center justify-between gap-2">
               <div>
-                <div className="text-[11px] uppercase opacity-60 font-bold">
-                  Client(e)
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] uppercase opacity-60 font-bold">
+                    Client(e)
+                  </span>
+                  {ord.isMember || ord.memberDiscountAmount > 0 ? (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                      Membre Connecté(e) (-{ord.memberDiscountPercent || 5}%) ✨
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-500/10 text-slate-500">
+                      Commande Invité(e)
+                    </span>
+                  )}
                 </div>
-                <div className="text-sm sm:text-base font-extrabold">
+                <div className="text-sm sm:text-base font-extrabold mt-0.5">
                   {ord.clientName}
                 </div>
+                {ord.memberEmail && (
+                  <div className="text-xs text-rose-500 font-medium">
+                    {ord.memberEmail}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-2">
@@ -289,21 +305,37 @@ export default function OrderTicketModal() {
             }`}
           >
             <div className="flex justify-between">
-              <span className="opacity-75">Sous-total Livres:</span>
+              <span className="opacity-75">Sous-total Brut Livres:</span>
               <span className="font-bold">
                 {formatDzd(
-                  ord.subtotal || (ord.bookUnitPrice || 1500) * (ord.quantity || 1)
+                  ord.originalSubtotal ||
+                    ord.subtotal ||
+                    (ord.bookUnitPrice || 1500) * (ord.quantity || 1)
                 )}
               </span>
             </div>
+
+            {(ord.isMember || ord.memberDiscountAmount > 0) && (
+              <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-extrabold animate-in fade-in">
+                <span className="flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>
+                    Remise Membre Connecté (-{ord.memberDiscountPercent || 5}%):
+                  </span>
+                </span>
+                <span>- {formatDzd(ord.memberDiscountAmount)}</span>
+              </div>
+            )}
+
             <div className="flex justify-between">
               <span className="opacity-75">
-                Frais de Livraison ({ord.deliveryAgency}):
+                Frais de Livraison ({ord.deliveryAgency || "Standard"}):
               </span>
               <span className="font-bold">{formatDzd(ord.deliveryFee || 0)}</span>
             </div>
+
             <div className="border-t border-rose-500/20 pt-2 flex justify-between items-center text-base sm:text-lg font-black text-rose-500">
-              <span>TOTAL À PAYER (DZD):</span>
+              <span>TOTAL NET PAYÉ (DZD):</span>
               <span>{formatDzd(ord.totalPrice)}</span>
             </div>
           </div>

@@ -168,6 +168,15 @@ export default function OrdersPage({ previewLimit = null }) {
                         <Receipt className="w-3.5 h-3.5" />
                         {ticketCode}
                       </span>
+                      {ord.isMember || ord.memberDiscountAmount > 0 ? (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                          Membre (-{ord.memberDiscountPercent || 5}%) ✨
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-500">
+                          Invité(e)
+                        </span>
+                      )}
                       {idx === 0 && (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-500">
                           Dernière ✨
@@ -318,11 +327,22 @@ export default function OrdersPage({ previewLimit = null }) {
                       </td>
 
                       <td className="py-4 px-3">
-                        <div className="font-bold">{ord.clientName}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">{ord.clientName}</span>
+                          {ord.isMember || ord.memberDiscountAmount > 0 ? (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                              Membre (-{ord.memberDiscountPercent || 5}%)
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-slate-500/10 text-slate-500">
+                              Invité
+                            </span>
+                          )}
+                        </div>
                         <a
                           href={`tel:${ord.clientPhone}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="text-xs text-rose-500 font-semibold hover:underline"
+                          className="text-xs text-rose-500 font-semibold hover:underline block mt-0.5"
                         >
                           {ord.clientPhone}
                         </a>
@@ -361,7 +381,12 @@ export default function OrdersPage({ previewLimit = null }) {
                       </td>
 
                       <td className="py-4 px-3 font-extrabold text-rose-500">
-                        {formatDzd(ord.totalPrice)}
+                        <div>{formatDzd(ord.totalPrice)}</div>
+                        {(ord.isMember || ord.memberDiscountAmount > 0) && (
+                          <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                            (Remise -{formatDzd(ord.memberDiscountAmount)})
+                          </div>
+                        )}
                       </td>
 
                       <td

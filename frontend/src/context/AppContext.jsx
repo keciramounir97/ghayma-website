@@ -12,6 +12,7 @@ import {
   subscribeChallengePosts,
   subscribeAnalytics,
   subscribeArticles,
+  subscribeMemberDiscountSettings,
   trackWebsiteVisit
 } from "../firebase.js";
 import { TRANSLATIONS } from "../data/i18n.js";
@@ -32,7 +33,8 @@ export function AppProvider({ children }) {
     setChallenges,
     setChallengePosts,
     setArticles,
-    setAnalytics
+    setAnalytics,
+    setMemberDiscount
   } = store;
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ar;
 
@@ -61,6 +63,7 @@ export function AppProvider({ children }) {
       setDeliveryEnabled(deliv.deliveryEnabled);
       setWilayas(deliv.wilayas);
     });
+    const unsubDiscount = subscribeMemberDiscountSettings(setMemberDiscount);
     return () => {
       unsubBooks && unsubBooks();
       unsubAbout && unsubAbout();
@@ -71,6 +74,7 @@ export function AppProvider({ children }) {
       unsubArticles && unsubArticles();
       unsubAnalytics && unsubAnalytics();
       unsubDelivery && unsubDelivery();
+      unsubDiscount && unsubDiscount();
     };
   }, [
     setBooks,
@@ -79,6 +83,7 @@ export function AppProvider({ children }) {
     setFooterContent,
     setWilayas,
     setDeliveryEnabled,
+    setMemberDiscount,
     setChallenges,
     setChallengePosts,
     setArticles,

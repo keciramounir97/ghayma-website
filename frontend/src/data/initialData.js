@@ -309,8 +309,8 @@ When the call of Fajr echoes through the quiet dawn, your soul finds a pause fro
       "/images/book-front.jpg",
       "/images/book-shelf.jpeg"
     ],
-    likesCount: 142,
-    commentsCount: 2,
+    likesCount: 0,
+    commentsCount: 0,
     published: true
   },
   {
@@ -339,38 +339,13 @@ J'ai toujours cru que les émotions vraies finissent toujours par trouver leur �
       "/images/book-spread.jpg",
       "/images/book-shelf.jpeg"
     ],
-    likesCount: 98,
-    commentsCount: 1,
+    likesCount: 0,
+    commentsCount: 0,
     published: true
   }
 ];
 
-export const INITIAL_COMMENTS = [
-  {
-    id: "com-1",
-    articleId: "fajr-routine-serenite",
-    authorName: "أميرة من العاصمة",
-    authorAvatar: "🌸",
-    content: "كلمات تلامس القلب والروح! بدأت تحدي الفجر معكم وأشعر ببركة عجيبة في يومي الحمد لله ✨",
-    createdAt: "2026-11-21T08:30:00.000Z"
-  },
-  {
-    id: "com-2",
-    articleId: "fajr-routine-serenite",
-    authorName: "Sarah (Constantine)",
-    authorAvatar: "✨",
-    content: "Magnifique article ! Le rappel sur les deux rak'ats de la Sunnah m'a tellement motivée pour demain matin inch'Allah.",
-    createdAt: "2026-11-21T10:15:00.000Z"
-  },
-  {
-    id: "com-3",
-    articleId: "lart-decrire-entre-les-nuages",
-    authorName: "نور الهدى (وهران)",
-    authorAvatar: "📖",
-    content: "كتبك كانت رفيقة لي في أصعب الأوقات.. شكراً غيمة على هذا الصدق والجمال في الحروف 💕",
-    createdAt: "2026-11-20T17:45:00.000Z"
-  }
-];
+export const INITIAL_COMMENTS = [];
 
 export const INITIAL_POSTS = [
   {

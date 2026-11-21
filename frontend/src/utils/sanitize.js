@@ -36,21 +36,45 @@ export function validateAlgerianPhone(phone) {
 }
 
 export function sanitizeOrderPayload(payload) {
+  const phone = sanitizeText(payload.clientPhone || payload.phone || "", 30);
+  const commune = sanitizeText(payload.baladiya || payload.commune || "", 80);
+  const postalCode = sanitizeText(payload.postCode || payload.postalCode || "", 20);
+  const wilayaLabel = sanitizeText(payload.wilayaLabel || payload.wilaya || "", 120);
+
   return {
     clientName: sanitizeText(payload.clientName || "", 120),
-    phone: sanitizeText(payload.phone || "", 30),
-    wilaya: sanitizeText(payload.wilaya || "", 80),
+    clientPhone: phone,
+    phone: phone,
+    wilaya: wilayaLabel,
+    wilayaLabel: wilayaLabel,
+    wilayaCode: sanitizeText(String(payload.wilayaCode || ""), 10),
+    wilayaNameFr: sanitizeText(payload.wilayaNameFr || "", 80),
+    wilayaNameAr: sanitizeText(payload.wilayaNameAr || "", 80),
     daira: sanitizeText(payload.daira || "", 80),
-    commune: sanitizeText(payload.commune || "", 80),
-    postalCode: sanitizeText(payload.postalCode || "", 20),
+    commune: commune,
+    baladiya: commune,
+    postalCode: postalCode,
+    postCode: postalCode,
     address: sanitizeText(payload.address || "", 300),
-    deliveryType: payload.deliveryType === "agency" ? "agency" : "home",
+    deliveryType: payload.deliveryType === "agency" || payload.deliveryMethod === "agency" ? "agency" : "home",
+    deliveryMethod: payload.deliveryMethod || payload.deliveryType || "home",
+    deliveryMethodLabel: sanitizeText(payload.deliveryMethodLabel || "", 80),
+    deliveryAgency: sanitizeText(payload.deliveryAgency || "Yalidine Express", 80),
     bookId: sanitizeText(payload.bookId || "", 80),
     bookTitle: sanitizeText(payload.bookTitle || "", 150),
+    bookCover: sanitizeText(payload.bookCover || "", 300),
+    bookUnitPrice: Number(payload.bookUnitPrice || payload.unitPrice) || 1500,
+    unitPrice: Number(payload.unitPrice || payload.bookUnitPrice) || 1500,
     quantity: Math.max(1, Math.min(20, parseInt(payload.quantity, 10) || 1)),
-    unitPrice: Number(payload.unitPrice) || 0,
     deliveryFee: Number(payload.deliveryFee) || 0,
+    originalSubtotal: Number(payload.originalSubtotal) || Number(payload.subtotal) || 0,
+    subtotal: Number(payload.subtotal) || 0,
     totalPrice: Number(payload.totalPrice) || 0,
-    notes: sanitizeText(payload.notes || "", 500)
+    currency: "DZD",
+    notes: sanitizeText(payload.notes || "", 500),
+    isMember: Boolean(payload.isMember),
+    memberEmail: payload.memberEmail ? sanitizeText(payload.memberEmail, 120) : null,
+    memberDiscountPercent: Number(payload.memberDiscountPercent) || 0,
+    memberDiscountAmount: Number(payload.memberDiscountAmount) || 0
   };
 }

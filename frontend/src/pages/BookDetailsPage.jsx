@@ -33,6 +33,9 @@ export default function BookDetailsPage() {
     books,
     wilayas,
     deliveryEnabled,
+    memberDiscount,
+    currentUser,
+    setAuthModalOpen,
     formatDzd,
     addToast,
     addNotification
@@ -125,7 +128,16 @@ export default function BookDetailsPage() {
   }, [deliveryEnabled, selectedWilaya, deliveryType]);
 
   const booksSubtotal = (Number(orderedBook.price) || 1500) * quantity;
-  const totalAmount = deliveryEnabled ? booksSubtotal + deliveryFee : booksSubtotal;
+  const isMember = Boolean(currentUser);
+  const discountPercent =
+    isMember && memberDiscount?.enabled !== false
+      ? Number(memberDiscount?.discountPercent) || 5
+      : 0;
+  const memberDiscountAmount = Math.round(booksSubtotal * (discountPercent / 100));
+  const discountedSubtotal = booksSubtotal - memberDiscountAmount;
+  const totalAmount = deliveryEnabled
+    ? discountedSubtotal + deliveryFee
+    : discountedSubtotal;
 
   const handleOrderSubmit = async (e) => {
     e.preventDefault();
@@ -183,7 +195,12 @@ export default function BookDetailsPage() {
           ? selectedWilaya.agency || "Yalidine Express"
           : "Standard",
         deliveryFee: deliveryEnabled ? deliveryFee : 0,
-        subtotal: booksSubtotal,
+        isMember,
+        memberEmail: currentUser?.email || null,
+        memberDiscountPercent: discountPercent,
+        memberDiscountAmount,
+        originalSubtotal: booksSubtotal,
+        subtotal: isMember ? discountedSubtotal : booksSubtotal,
         totalPrice: totalAmount,
         currency: "DZD",
         notes: notes.trim()
@@ -799,6 +816,76 @@ export default function BookDetailsPage() {
                 />
               </div>
 
+              {/* Member Discount Incentive Banner */}
+              {isMember && memberDiscount?.enabled !== false ? (
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/15 to-emerald-500/15 border-2 border-emerald-500/30 flex items-center justify-between gap-3 animate-in fade-in">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm shadow-emerald-500/30">
+                      %{discountPercent}
+                    </div>
+                    <div>
+                      <div className="text-xs sm:text-sm font-extrabold text-emerald-800 dark:text-emerald-300">
+                        {lang === "ar"
+                          ? memberDiscount?.bannerTextAr || "تم تطبيق خصم 5% الخاص بعضوات مجتمع غيمة على طلبكِ! ✨"
+                          : lang === "en"
+                          ? memberDiscount?.bannerTextEn || "5% logged-in member discount applied to your order! 🌸"
+                          : memberDiscount?.bannerTextFr || "Remise membre connecté de 5% appliquée sur votre commande ! 🌸"}
+                      </div>
+                      <div className="text-[11px] text-emerald-700/80 dark:text-emerald-400 font-medium">
+                        {lang === "ar"
+                          ? `حساب العضوة: ${currentUser?.name || currentUser?.email}`
+                          : `Compte membre : ${currentUser?.name || currentUser?.email}`}
+                      </div>
+                    </div>
+                  </div>
+                  <Chip
+                    size="small"
+                    label={`${discountPercent}% OFF`}
+                    sx={{
+                      bgcolor: "#10b981",
+                      color: "#ffffff",
+                      fontWeight: 800,
+                      fontSize: "10px"
+                    }}
+                  />
+                </div>
+              ) : memberDiscount?.enabled !== false ? (
+                <div
+                  className={`p-3.5 sm:p-4 rounded-2xl border-2 border-dashed flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                    dark
+                      ? "bg-rose-950/20 border-rose-800/60 text-rose-100"
+                      : "bg-rose-50/70 border-rose-300 text-slate-800"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-500 flex items-center justify-center text-sm shrink-0">
+                      🌸
+                    </div>
+                    <div>
+                      <div className="text-xs sm:text-sm font-bold">
+                        {lang === "ar"
+                          ? `خصم ${memberDiscount?.discountPercent || 5}% فوري عند تسجيل الدخول!`
+                          : `Bénéficiez de ${memberDiscount?.discountPercent || 5}% de remise immédiate !`}
+                      </div>
+                      <div className="text-[11px] opacity-75">
+                        {lang === "ar"
+                          ? "تطلبين كزائرة. يمكنكِ تسجيل الدخول للاستفادة من الخصم، أو إكمال الطلب كزائرة بحرية."
+                          : "Vous commandez en tant qu'invité(e). Connectez-vous pour activer la remise ou commandez librement."}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setAuthModalOpen(true)}
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs shadow-md shadow-rose-500/25 transition-all cursor-pointer shrink-0"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>{lang === "ar" ? "تسجيل الدخول للخصم" : "Se connecter (-5%)"}</span>
+                  </button>
+                </div>
+              ) : null}
+
               {/* Live Price Calculation Summary Box */}
               <div
                 className={`p-4 sm:p-5 rounded-2xl border space-y-2.5 ${
@@ -814,6 +901,20 @@ export default function BookDetailsPage() {
                   </span>
                   <span className="font-bold">{formatDzd(booksSubtotal)}</span>
                 </div>
+
+                {isMember && memberDiscountAmount > 0 && (
+                  <div className="flex justify-between text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 font-extrabold animate-in fade-in">
+                    <span className="flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>
+                        {lang === "ar"
+                          ? `خصم العضوة المسجلة (-${discountPercent}%):`
+                          : `Remise Membre Connecté (-${discountPercent}%):`}
+                      </span>
+                    </span>
+                    <span>- {formatDzd(memberDiscountAmount)}</span>
+                  </div>
+                )}
 
                 {deliveryEnabled && (
                   <div className="flex justify-between text-xs sm:text-sm">

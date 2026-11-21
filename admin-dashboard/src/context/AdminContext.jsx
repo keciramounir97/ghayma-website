@@ -16,7 +16,9 @@ import {
   subscribeChallengeComments,
   subscribeAnalytics,
   subscribeArticles,
-  subscribeArticleComments
+  subscribeArticleComments,
+  subscribeMemberDiscountSettings,
+  saveMemberDiscountSettings
 } from "../firebase.js";
 import { ADMIN_TRANSLATIONS } from "../data/i18n.js";
 
@@ -41,6 +43,7 @@ export function AdminProvider({ children }) {
     setArticles,
     setArticleComments,
     setAnalytics,
+    setMemberDiscount,
     addToast
   } = store;
 
@@ -74,6 +77,7 @@ export function AdminProvider({ children }) {
       setDeliveryEnabled(deliv.deliveryEnabled);
       setWilayas(deliv.wilayas);
     });
+    const unsubDiscount = subscribeMemberDiscountSettings(setMemberDiscount);
     return () => {
       unsubBooks && unsubBooks();
       unsubOrders && unsubOrders();
@@ -87,6 +91,7 @@ export function AdminProvider({ children }) {
       unsubComments && unsubComments();
       unsubAnalytics && unsubAnalytics();
       unsubDelivery && unsubDelivery();
+      unsubDiscount && unsubDiscount();
     };
   }, [
     setBooks,
@@ -97,6 +102,7 @@ export function AdminProvider({ children }) {
     setFooterContent,
     setWilayas,
     setDeliveryEnabled,
+    setMemberDiscount,
     setChallenges,
     setChallengePosts,
     setChallengeComments,
@@ -104,6 +110,20 @@ export function AdminProvider({ children }) {
     setArticleComments,
     setAnalytics
   ]);
+
+  const updateMemberDiscount = async (settings) => {
+    try {
+      await saveMemberDiscountSettings(settings);
+      addToast(
+        lang === "ar"
+          ? "تم حفظ إعدادات خصم العضوات بنجاح! 🌸"
+          : "Paramètres de la remise membre enregistrés avec succès ! 🌸"
+      );
+    } catch (err) {
+      console.error("Save discount error:", err);
+      addToast("Erreur lors de la sauvegarde du discount", "error");
+    }
+  };
 
   const toggleDeliveryEnabled = async () => {
     const nextVal = !store.deliveryEnabled;
@@ -197,9 +217,10 @@ export function AdminProvider({ children }) {
       ...store,
       t,
       formatDzd,
-      toggleDeliveryEnabled
+      toggleDeliveryEnabled,
+      updateMemberDiscount
     }),
-    [store, t, toggleDeliveryEnabled]
+    [store, t, toggleDeliveryEnabled, updateMemberDiscount]
   );
 
   return (

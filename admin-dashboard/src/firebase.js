@@ -123,6 +123,21 @@ export async function ensureAdminAndSeedData() {
       await setDoc(doc(adminDb, "settings", "delivery"), initialDelivery).catch(() => {});
     }
 
+    const memberDiscountRef = doc(storeDb, "settings", "member_discount");
+    const memberDiscountSnap = await getDoc(memberDiscountRef);
+    if (!memberDiscountSnap.exists()) {
+      const initialDiscount = {
+        enabled: true,
+        discountPercent: 5,
+        bannerTextFr: "Remise membre connecté de 5% appliquée sur votre commande ! 🌸",
+        bannerTextAr: "تم تطبيق خصم 5% الخاص بعضوات مجتمع غيمة على طلبكِ! ✨",
+        bannerTextEn: "5% logged-in member discount applied to your order! 🌸",
+        updatedAt: new Date().toISOString()
+      };
+      await setDoc(memberDiscountRef, initialDiscount);
+      await setDoc(doc(adminDb, "settings", "member_discount"), initialDiscount).catch(() => {});
+    }
+
     // Seed Ghayma Challenges
     const challengesSnap = await getDocs(collection(storeDb, "challenges"));
     if (challengesSnap.empty) {
@@ -375,6 +390,54 @@ export function subscribeDeliveryWilayas(callback) {
     },
     () => callback(WILAYAS_69)
   );
+}
+
+export function subscribeMemberDiscountSettings(callback) {
+  return onSnapshot(
+    doc(storeDb, "settings", "member_discount"),
+    (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        callback({
+          enabled: data.enabled !== false,
+          discountPercent: Number(data.discountPercent) || 5,
+          bannerTextFr: data.bannerTextFr || "Remise membre connecté de 5% appliquée sur votre commande ! 🌸",
+          bannerTextAr: data.bannerTextAr || "تم تطبيق خصم 5% الخاص بعضوات مجتمع غيمة على طلبكِ! ✨",
+          bannerTextEn: data.bannerTextEn || "5% logged-in member discount applied to your order! 🌸"
+        });
+      } else {
+        callback({
+          enabled: true,
+          discountPercent: 5,
+          bannerTextFr: "Remise membre connecté de 5% appliquée sur votre commande ! 🌸",
+          bannerTextAr: "تم تطبيق خصم 5% الخاص بعضوات مجتمع غيمة على طلبكِ! ✨",
+          bannerTextEn: "5% logged-in member discount applied to your order! 🌸"
+        });
+      }
+    },
+    () =>
+      callback({
+        enabled: true,
+        discountPercent: 5,
+        bannerTextFr: "Remise membre connecté de 5% appliquée sur votre commande ! 🌸",
+        bannerTextAr: "تم تطبيق خصم 5% الخاص بعضوات مجتمع غيمة على طلبكِ! ✨",
+        bannerTextEn: "5% logged-in member discount applied to your order! 🌸"
+      })
+  );
+}
+
+export async function saveMemberDiscountSettings(settings) {
+  const payload = {
+    enabled: Boolean(settings.enabled),
+    discountPercent: Math.max(0, Math.min(100, Number(settings.discountPercent) || 5)),
+    bannerTextFr: (settings.bannerTextFr || "").trim(),
+    bannerTextAr: (settings.bannerTextAr || "").trim(),
+    bannerTextEn: (settings.bannerTextEn || "").trim(),
+    updatedAt: new Date().toISOString()
+  };
+  await setDoc(doc(storeDb, "settings", "member_discount"), payload);
+  await setDoc(doc(adminDb, "settings", "member_discount"), payload).catch(() => {});
+  return payload;
 }
 
 export async function setDeliveryEnabledInFirestore(enabled) {

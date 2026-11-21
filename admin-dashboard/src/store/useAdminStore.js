@@ -37,6 +37,13 @@ export const useAdminStore = create((set, get) => ({
   footerContent: INITIAL_FOOTER,
   wilayas: WILAYAS_69,
   deliveryEnabled: false, // Deactivated by default until admin checks it in settings
+  memberDiscount: {
+    enabled: true,
+    discountPercent: 5,
+    bannerTextFr: "Remise membre connecté de 5% appliquée sur votre commande ! 🌸",
+    bannerTextAr: "تم تطبيق خصم 5% الخاص بعضوات مجتمع غيمة على طلبكِ! ✨",
+    bannerTextEn: "5% logged-in member discount applied to your order! 🌸"
+  },
   challenges: INITIAL_CHALLENGES,
   challengePosts: INITIAL_POSTS,
   challengeComments: [],
@@ -108,6 +115,7 @@ export const useAdminStore = create((set, get) => ({
     set({ wilayas: next });
   },
   setDeliveryEnabled: (deliveryEnabled) => set({ deliveryEnabled }),
+  setMemberDiscount: (memberDiscount) => set({ memberDiscount }),
   setChallenges: (challenges) => set({ challenges }),
   setChallengePosts: (challengePosts) => set({ challengePosts }),
   setChallengeComments: (challengeComments) => set({ challengeComments }),

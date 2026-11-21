@@ -14,7 +14,7 @@ import {
   increment,
   arrayUnion
 } from "firebase/firestore";
-import { sanitizeText, sanitizeOrderPayload } from "./utils/sanitize.js";
+import { sanitizeText, sanitizeOrderPayload, validateEmail } from "./utils/sanitize.js";
 import { logger } from "./utils/logger.js";
 import {
   INITIAL_BOOKS,
@@ -103,6 +103,21 @@ export async function ensureSeedData() {
       };
       await setDoc(deliveryRef, initialDelivery);
       await setDoc(doc(adminDb, "settings", "delivery"), initialDelivery).catch(() => {});
+    }
+
+    const memberDiscountRef = doc(db, "settings", "member_discount");
+    const memberDiscountSnap = await getDoc(memberDiscountRef);
+    if (!memberDiscountSnap.exists()) {
+      const initialDiscount = {
+        enabled: true,
+        discountPercent: 5,
+        bannerTextFr: "Remise membre connecté de 5% appliquée sur votre commande ! 🌸",
+        bannerTextAr: "تم تطبيق خصم 5% الخاص بعضوات مجتمع غيمة على طلبكِ! ✨",
+        bannerTextEn: "5% logged-in member discount applied to your order! 🌸",
+        updatedAt: new Date().toISOString()
+      };
+      await setDoc(memberDiscountRef, initialDiscount);
+      await setDoc(doc(adminDb, "settings", "member_discount"), initialDiscount).catch(() => {});
     }
 
     // Seed / Ensure Primary Ghayma Challenge (November Fajr Challenge)
@@ -254,6 +269,54 @@ export function subscribeDeliveryWilayas(callback) {
     },
     () => callback(WILAYAS_69)
   );
+}
+
+export function subscribeMemberDiscountSettings(callback) {
+  return onSnapshot(
+    doc(db, "settings", "member_discount"),
+    (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        callback({
+          enabled: data.enabled !== false,
+          discountPercent: Number(data.discountPercent) || 5,
+          bannerTextFr: data.bannerTextFr || "Remise membre connecté de 5% appliquée sur votre commande ! 🌸",
+          bannerTextAr: data.bannerTextAr || "تم تطبيق خصم 5% الخاص بعضوات مجتمع غيمة على طلبكِ! ✨",
+          bannerTextEn: data.bannerTextEn || "5% logged-in member discount applied to your order! 🌸"
+        });
+      } else {
+        callback({
+          enabled: true,
+          discountPercent: 5,
+          bannerTextFr: "Remise membre connecté de 5% appliquée sur votre commande ! 🌸",
+          bannerTextAr: "تم تطبيق خصم 5% الخاص بعضوات مجتمع غيمة على طلبكِ! ✨",
+          bannerTextEn: "5% logged-in member discount applied to your order! 🌸"
+        });
+      }
+    },
+    () =>
+      callback({
+        enabled: true,
+        discountPercent: 5,
+        bannerTextFr: "Remise membre connecté de 5% appliquée sur votre commande ! 🌸",
+        bannerTextAr: "تم تطبيق خصم 5% الخاص بعضوات مجتمع غيمة على طلبكِ! ✨",
+        bannerTextEn: "5% logged-in member discount applied to your order! 🌸"
+      })
+  );
+}
+
+export async function saveMemberDiscountSettings(settings) {
+  const payload = {
+    enabled: Boolean(settings.enabled),
+    discountPercent: Math.max(0, Math.min(100, Number(settings.discountPercent) || 5)),
+    bannerTextFr: sanitizeText(settings.bannerTextFr || "", 250),
+    bannerTextAr: sanitizeText(settings.bannerTextAr || "", 250),
+    bannerTextEn: sanitizeText(settings.bannerTextEn || "", 250),
+    updatedAt: new Date().toISOString()
+  };
+  await setDoc(doc(db, "settings", "member_discount"), payload);
+  await setDoc(doc(adminDb, "settings", "member_discount"), payload).catch(() => {});
+  return payload;
 }
 
 export async function createOrder(orderData) {
@@ -513,14 +576,151 @@ export async function deleteArticleComment(commentId, articleId) {
 }
 
 export async function likeArticle(articleId) {
+  return toggleLikeArticle(articleId);
+}
+
+export async function toggleLikeArticle(articleId, userId) {
+  if (!articleId) return { liked: false };
+  const userKey =
+    userId ||
+    (typeof window !== "undefined"
+      ? window.localStorage.getItem("ghayma_user_key") ||
+        "guest_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6)
+      : "guest");
+  if (typeof window !== "undefined" && !window.localStorage.getItem("ghayma_user_key")) {
+    window.localStorage.setItem("ghayma_user_key", userKey);
+  }
+  const likeDocId = `${articleId}_${userKey}`;
+  const likeRef = doc(db, "article_likes", likeDocId);
+
   try {
-    await updateDoc(doc(db, "articles", articleId), {
-      likesCount: increment(1)
-    });
-    await updateDoc(doc(adminDb, "articles", articleId), {
-      likesCount: increment(1)
-    }).catch(() => {});
-  } catch (_) {}
+    const snap = await getDoc(likeRef);
+    if (snap.exists()) {
+      await deleteDoc(likeRef);
+      await updateDoc(doc(db, "articles", articleId), {
+        likesCount: increment(-1)
+      }).catch(() => {});
+      await updateDoc(doc(adminDb, "articles", articleId), {
+        likesCount: increment(-1)
+      }).catch(() => {});
+      return { liked: false };
+    } else {
+      await setDoc(likeRef, {
+        articleId,
+        userId: userKey,
+        createdAt: new Date().toISOString()
+      });
+      await updateDoc(doc(db, "articles", articleId), {
+        likesCount: increment(1)
+      }).catch(() => {});
+      await updateDoc(doc(adminDb, "articles", articleId), {
+        likesCount: increment(1)
+      }).catch(() => {});
+      return { liked: true };
+    }
+  } catch (err) {
+    console.warn("Toggle like article error:", err);
+    return { liked: false };
+  }
+}
+
+// ==========================================
+// REAL USER AUTHENTICATION & FIRESTORE DIRECTORY
+// ==========================================
+export async function registerUserAccount({ name, email, password, wilaya, avatar }) {
+  const cleanEmail = (email || "").trim().toLowerCase();
+  const cleanPass = (password || "").trim();
+  const cleanName = sanitizeText(name || "", 80);
+
+  if (!cleanEmail || !validateEmail(cleanEmail)) {
+    throw new Error("Veuillez saisir une adresse email valide");
+  }
+  if (!cleanPass || cleanPass.length < 6) {
+    throw new Error("Le mot de passe doit comporter au moins 6 caractères");
+  }
+
+  // Check if user already exists in Firestore
+  const usersRef = collection(db, "users");
+  const usersSnap = await getDocs(usersRef);
+  const exists = usersSnap.docs.some(
+    (d) => (d.data().email || "").toLowerCase() === cleanEmail
+  );
+  if (exists) {
+    throw new Error("Cet email est déjà enregistré. Veuillez vous connecter.");
+  }
+
+  const userId =
+    "usr_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7);
+  const newUser = {
+    id: userId,
+    name: cleanName || cleanEmail.split("@")[0],
+    email: cleanEmail,
+    password: cleanPass,
+    wilaya: wilaya || "16 - Alger (الجزائر)",
+    avatar: avatar || "🌸",
+    role: "member",
+    createdAt: new Date().toISOString()
+  };
+
+  await setDoc(doc(db, "users", userId), newUser);
+  await setDoc(doc(adminDb, "users", userId), newUser).catch(() => {});
+
+  const sessionUser = {
+    id: newUser.id,
+    name: newUser.name,
+    email: newUser.email,
+    wilaya: newUser.wilaya,
+    avatar: newUser.avatar,
+    role: newUser.role,
+    createdAt: newUser.createdAt
+  };
+
+  if (typeof window !== "undefined") {
+    localStorage.setItem("ghayma_user", JSON.stringify(sessionUser));
+  }
+  logger.audit("USER_REGISTER", sessionUser.email, { userId: sessionUser.id });
+  return sessionUser;
+}
+
+export async function loginUserAccount(email, password) {
+  const cleanEmail = (email || "").trim().toLowerCase();
+  const cleanPass = (password || "").trim();
+
+  if (!cleanEmail || !cleanPass) {
+    throw new Error("Veuillez renseigner votre email et mot de passe");
+  }
+
+  const usersRef = collection(db, "users");
+  const usersSnap = await getDocs(usersRef);
+  const matchedDoc = usersSnap.docs.find((d) => {
+    const data = d.data();
+    return (data.email || "").toLowerCase() === cleanEmail;
+  });
+
+  if (!matchedDoc) {
+    throw new Error("Compte introuvable. Veuillez vérifier votre adresse email ou créer un compte.");
+  }
+
+  const userData = matchedDoc.data();
+  if (userData.password && userData.password !== cleanPass) {
+    throw new Error("Mot de passe incorrect.");
+  }
+
+  const sessionUser = {
+    id: matchedDoc.id,
+    name: userData.name || cleanEmail.split("@")[0],
+    email: userData.email,
+    wilaya: userData.wilaya || "16 - Alger (الجزائر)",
+    avatar: userData.avatar || "🌸",
+    role: userData.role || "member",
+    createdAt: userData.createdAt || new Date().toISOString()
+  };
+
+  if (typeof window !== "undefined") {
+    localStorage.setItem("ghayma_user", JSON.stringify(sessionUser));
+  }
+  logger.audit("USER_LOGIN", sessionUser.email, { userId: sessionUser.id });
+  return sessionUser;
 }
 
 // REAL CHALLENGE POSTS COMMENTS & LIKES
@@ -665,8 +865,13 @@ export async function deleteUserAccountAndData(userId) {
       }
     }
 
-    // 3. Clear local storage
+    // 3. Delete user document from users collection
+    await deleteDoc(doc(db, "users", userId)).catch(() => {});
+    await deleteDoc(doc(adminDb, "users", userId)).catch(() => {});
+
+    // 4. Clear local storage
     if (typeof window !== "undefined") {
+      window.localStorage.removeItem("ghayma_user");
       window.localStorage.removeItem("ghayma_user_session");
       window.localStorage.removeItem("ghayma_fajr_streak");
       window.localStorage.removeItem("ghayma_user_routines");

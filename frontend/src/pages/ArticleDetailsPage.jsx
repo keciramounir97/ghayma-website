@@ -22,7 +22,7 @@ import {
   subscribeArticle,
   subscribeArticleComments,
   addArticleComment,
-  likeArticle
+  toggleLikeArticle
 } from "../firebase.js";
 
 export default function ArticleDetailsPage() {
@@ -58,14 +58,17 @@ export default function ArticleDetailsPage() {
   }, [id]);
 
   const handleLike = async () => {
-    if (liked) return;
-    setLiked(true);
-    localStorage.setItem(`ghayma_liked_${id}`, "true");
-    await likeArticle(id);
+    const res = await toggleLikeArticle(id, currentUser?.id);
+    setLiked(res.liked);
+    localStorage.setItem(`ghayma_liked_${id}`, String(res.liked));
     addToast(
-      lang === "ar"
-        ? "شكراً على إعجابكِ اللطيف! تم تسجيل محبتكِ للمقال ♡"
-        : "Merci pour votre mention J'aime ! Votre soutien compte énormément ♡"
+      res.liked
+        ? lang === "ar"
+          ? "شكراً على إعجابكِ اللطيف! تم تسجيل محبتكِ للمقال ♡"
+          : "Merci pour votre mention J'aime ! Votre soutien compte énormément ♡"
+        : lang === "ar"
+        ? "تم إلغاء الإعجاب بالمقال"
+        : "Mention J'aime retirée"
     );
   };
 
@@ -79,6 +82,7 @@ export default function ArticleDetailsPage() {
     setSubmittingComment(true);
     try {
       await addArticleComment(id, {
+        authorId: currentUser?.id || null,
         authorName,
         authorAvatar,
         content: commentText.trim()

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Card from "@mui/material/Card";
 import Chip from "@mui/material/Chip";
@@ -12,7 +12,12 @@ import {
   ArrowRight,
   ArrowLeft,
   Sparkles,
-  Eye
+  Eye,
+  Percent,
+  Save,
+  Tag,
+  UserCheck,
+  Check
 } from "lucide-react";
 import { useAdminContext } from "../context/AdminContext.jsx";
 
@@ -23,14 +28,49 @@ export default function SettingsPage() {
     dark,
     deliveryEnabled,
     toggleDeliveryEnabled,
+    memberDiscount,
+    updateMemberDiscount,
     wilayas,
     formatDzd
   } = useAdminContext();
 
   const navigate = useNavigate();
   const [toggling, setToggling] = useState(false);
+  const [savingDiscount, setSavingDiscount] = useState(false);
   const isRtl = lang === "ar";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
+
+  const [discountForm, setDiscountForm] = useState(() => ({
+    enabled: memberDiscount?.enabled !== false,
+    discountPercent: memberDiscount?.discountPercent ?? 5,
+    bannerTextFr:
+      memberDiscount?.bannerTextFr ||
+      "Remise membre connecté de 5% appliquée sur votre commande ! 🌸",
+    bannerTextAr:
+      memberDiscount?.bannerTextAr ||
+      "تم تطبيق خصم 5% الخاص بعضوات مجتمع غيمة على طلبكِ! ✨",
+    bannerTextEn:
+      memberDiscount?.bannerTextEn ||
+      "5% logged-in member discount applied to your order! 🌸"
+  }));
+
+  useEffect(() => {
+    if (memberDiscount) {
+      setDiscountForm({
+        enabled: memberDiscount.enabled !== false,
+        discountPercent: memberDiscount.discountPercent ?? 5,
+        bannerTextFr:
+          memberDiscount.bannerTextFr ||
+          "Remise membre connecté de 5% appliquée sur votre commande ! 🌸",
+        bannerTextAr:
+          memberDiscount.bannerTextAr ||
+          "تم تطبيق خصم 5% الخاص بعضوات مجتمع غيمة على طلبكِ! ✨",
+        bannerTextEn:
+          memberDiscount.bannerTextEn ||
+          "5% logged-in member discount applied to your order! 🌸"
+      });
+    }
+  }, [memberDiscount]);
 
   const sampleWilaya = wilayas[15] || {
     code: "16",
@@ -49,6 +89,26 @@ export default function SettingsPage() {
       setToggling(false);
     }
   };
+
+  const handleSaveDiscount = async (e) => {
+    e?.preventDefault?.();
+    setSavingDiscount(true);
+    try {
+      await updateMemberDiscount(discountForm);
+    } finally {
+      setSavingDiscount(false);
+    }
+  };
+
+  // Preview Calculations
+  const previewUnitPrice = 1500;
+  const previewSubtotal = previewUnitPrice * 1;
+  const previewDiscountAmount = discountForm.enabled
+    ? Math.round(previewSubtotal * (Number(discountForm.discountPercent || 5) / 100))
+    : 0;
+  const previewDiscountedSubtotal = previewSubtotal - previewDiscountAmount;
+  const previewDeliveryFee = deliveryEnabled ? Number(sampleWilaya.homePrice) || 600 : 0;
+  const previewTotal = previewDiscountedSubtotal + previewDeliveryFee;
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -85,7 +145,237 @@ export default function SettingsPage() {
         </button>
       </Card>
 
-      {/* Main Feature: Prominent Green Check Button Toggle Card */}
+      {/* ======================================================== */}
+      {/* 1. SECTION: MEMBER DISCOUNT CONFIGURATION (5% Default) */}
+      {/* ======================================================== */}
+      <Card
+        elevation={dark ? 6 : 2}
+        sx={{
+          borderRadius: "32px",
+          bgcolor: dark ? "#1a1121" : "#ffffff"
+        }}
+        className={`border-2 transition-all duration-300 p-6 sm:p-10 ${
+          discountForm.enabled
+            ? "border-pink-500/50 shadow-xl shadow-pink-500/10"
+            : "border-slate-300 dark:border-rose-900/60"
+        }`}
+      >
+        <form onSubmit={handleSaveDiscount} className="space-y-6">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-rose-500/15">
+            <div className="space-y-2 max-w-2xl">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-rose-500">
+                  {lang === "ar"
+                    ? "مكافأة العضوات المسجلات (Remise Membre)"
+                    : "Remise & Avantages Membres Connectés"}
+                </span>
+                {discountForm.enabled ? (
+                  <Chip
+                    icon={<CheckCircle2 className="w-3.5 h-3.5 !text-emerald-500" />}
+                    label={
+                      lang === "ar"
+                        ? `مفعل (${discountForm.discountPercent}%)`
+                        : `Actif (${discountForm.discountPercent}%)`
+                    }
+                    size="small"
+                    sx={{
+                      bgcolor: "rgba(16, 185, 129, 0.15)",
+                      color: "#10b981",
+                      fontWeight: 800,
+                      border: "1px solid rgba(16, 185, 129, 0.3)"
+                    }}
+                  />
+                ) : (
+                  <Chip
+                    icon={<Circle className="w-3.5 h-3.5 !text-amber-500" />}
+                    label={lang === "ar" ? "معطّل" : "Désactivé"}
+                    size="small"
+                    sx={{
+                      bgcolor: dark ? "#2c1a35" : "#fef3c7",
+                      color: dark ? "#fde68a" : "#b45309",
+                      fontWeight: 800
+                    }}
+                  />
+                )}
+              </div>
+
+              <h2 className="font-editorial text-xl sm:text-2xl font-bold text-slate-900 dark:text-rose-50 flex items-center gap-2">
+                <Tag className="w-6 h-6 text-rose-500" />
+                <span>
+                  {lang === "ar"
+                    ? `تحديد نسبة الخصم للعضوات (${discountForm.discountPercent}%) والنص الترويجي`
+                    : `Remise Spéciale Membres Connectés (${discountForm.discountPercent}%) & Texte du Formulaire`}
+                </span>
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-rose-200/80 leading-relaxed">
+                {lang === "ar"
+                  ? "تحصل كل زائرة تسجل دخولها أو تنشئ حساباً على خصم فوري بنسبة محددة (افتراضياً 5%) عند طلب الكتاب. الزائرات غير المسجلات يمكنهن الطلب بحرية بالسعر الأصلي دون إجبارهن على التسجيل."
+                  : "Chaque lectrice qui crée un compte ou se connecte bénéficie d'une remise exclusive (5% par défaut) sur sa commande. Les visiteuses non connectées peuvent continuer de commander librement au prix normal."}
+              </p>
+            </div>
+
+            {/* Quick Toggle Button for Member Discount */}
+            <div className="shrink-0 flex flex-col items-start lg:items-end gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setDiscountForm((f) => ({ ...f, enabled: !f.enabled }))
+                }
+                className={`inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl font-extrabold text-sm transition-all cursor-pointer ${
+                  discountForm.enabled
+                    ? "bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-lg shadow-rose-500/30"
+                    : dark
+                    ? "bg-[#25172e] text-rose-300 border border-rose-900"
+                    : "bg-slate-100 text-slate-700 border border-slate-300"
+                }`}
+              >
+                <div
+                  className={`w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs ${
+                    discountForm.enabled
+                      ? "bg-white text-rose-600 shadow-sm"
+                      : "bg-slate-300 text-slate-700"
+                  }`}
+                >
+                  {discountForm.enabled ? "✓" : "○"}
+                </div>
+                <span>
+                  {discountForm.enabled
+                    ? lang === "ar"
+                      ? "الخصم مفعّل للزبائن ✓"
+                      : "Remise Membre ACTIVÉE ✓"
+                    : lang === "ar"
+                    ? "الخصم معطّل حالياً ○"
+                    : "Remise Membre DÉSACTIVÉE ○"}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Form Fields: Percentage & Custom Texts */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-800 dark:text-rose-200 mb-1.5 flex items-center gap-1.5">
+                <Percent className="w-4 h-4 text-rose-500" />
+                <span>
+                  {lang === "ar"
+                    ? "نسبة الخصم المئوية (Pourcentage %)"
+                    : "Taux de Remise (%)"}
+                </span>
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={discountForm.discountPercent}
+                  onChange={(e) =>
+                    setDiscountForm((f) => ({
+                      ...f,
+                      discountPercent: Math.max(
+                        0,
+                        Math.min(100, Number(e.target.value) || 0)
+                      )
+                    }))
+                  }
+                  className={`w-full px-4 py-3 rounded-2xl border text-sm font-black focus:outline-none focus:ring-2 focus:ring-rose-500 ${
+                    dark
+                      ? "bg-[#24152d] border-rose-900 text-white"
+                      : "bg-slate-50 border-slate-300 text-slate-900"
+                  }`}
+                />
+                <span className="absolute end-4 top-1/2 -translate-y-1/2 font-extrabold text-sm text-rose-500">
+                  %
+                </span>
+              </div>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold text-slate-800 dark:text-rose-200 mb-1.5">
+                {lang === "ar"
+                  ? "نص الإعلان الذي تراه الزبونة في استمارة الطلب (بالفرنسية - FR)"
+                  : "Texte affiché dans le formulaire (Français)"}
+              </label>
+              <input
+                type="text"
+                value={discountForm.bannerTextFr}
+                onChange={(e) =>
+                  setDiscountForm((f) => ({ ...f, bannerTextFr: e.target.value }))
+                }
+                placeholder="Ex: Remise membre connecté de 5% appliquée sur votre commande ! 🌸"
+                className={`w-full px-4 py-3 rounded-2xl border text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-500 ${
+                  dark
+                    ? "bg-[#24152d] border-rose-900 text-white"
+                    : "bg-slate-50 border-slate-300 text-slate-900"
+                }`}
+              />
+            </div>
+
+            <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-800 dark:text-rose-200 mb-1.5 text-right">
+                  نص الإعلان الترويجي في الاستمارة (بالعربية - AR)
+                </label>
+                <input
+                  type="text"
+                  dir="rtl"
+                  value={discountForm.bannerTextAr}
+                  onChange={(e) =>
+                    setDiscountForm((f) => ({ ...f, bannerTextAr: e.target.value }))
+                  }
+                  placeholder="مثال: تم تطبيق خصم 5% الخاص بعضوات مجتمع غيمة على طلبكِ! ✨"
+                  className={`w-full px-4 py-3 rounded-2xl border text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-500 ${
+                    dark
+                      ? "bg-[#24152d] border-rose-900 text-white"
+                      : "bg-slate-50 border-slate-300 text-slate-900"
+                  }`}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-800 dark:text-rose-200 mb-1.5">
+                  Promotional Banner Text in Order Form (English - EN)
+                </label>
+                <input
+                  type="text"
+                  value={discountForm.bannerTextEn}
+                  onChange={(e) =>
+                    setDiscountForm((f) => ({ ...f, bannerTextEn: e.target.value }))
+                  }
+                  placeholder="Ex: 5% logged-in member discount applied to your order! 🌸"
+                  className={`w-full px-4 py-3 rounded-2xl border text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-500 ${
+                    dark
+                      ? "bg-[#24152d] border-rose-900 text-white"
+                      : "bg-slate-50 border-slate-300 text-slate-900"
+                  }`}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-rose-500/15">
+            <button
+              type="submit"
+              disabled={savingDiscount}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 hover:from-rose-600 hover:to-pink-700 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-rose-500/25 transition-all cursor-pointer disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" />
+              <span>
+                {savingDiscount
+                  ? lang === "ar"
+                    ? "جاري الحفظ..."
+                    : "Enregistrement..."
+                  : lang === "ar"
+                  ? "حفظ إعدادات الخصم والنصوص"
+                  : "Enregistrer la remise membre"}
+              </span>
+            </button>
+          </div>
+        </form>
+      </Card>
+
+      {/* ======================================================== */}
+      {/* 2. SECTION: DELIVERY TOGGLE CARD (THE GREEN CHECK BUTTON) */}
+      {/* ======================================================== */}
       <Card
         elevation={dark ? 6 : 2}
         sx={{
@@ -145,7 +435,7 @@ export default function SettingsPage() {
             </div>
 
             {/* THE GREEN CHECK BUTTON */}
-            <div className="shrink-0 flex flex-col items-center sm:items-end gap-2">
+            <div className="shrink-0 flex flex-col items-start lg:items-end gap-2">
               <button
                 type="button"
                 onClick={handleToggle}
@@ -153,10 +443,10 @@ export default function SettingsPage() {
                 aria-pressed={deliveryEnabled}
                 className={`group relative inline-flex items-center gap-3.5 px-6 sm:px-8 py-4 sm:py-5 rounded-3xl font-extrabold text-sm sm:text-base transition-all duration-300 cursor-pointer select-none active:scale-95 disabled:opacity-60 ${
                   deliveryEnabled
-                    ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-white shadow-xl shadow-emerald-500/35 hover:shadow-emerald-500/50 hover:from-emerald-600 hover:to-teal-600"
+                    ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-white shadow-xl shadow-emerald-500/35 hover:shadow-emerald-500/50"
                     : dark
-                    ? "bg-[#24152e] hover:bg-[#2e1b3a] text-rose-100 border-2 border-rose-800/60 hover:border-rose-500/50"
-                    : "bg-white hover:bg-slate-50 text-slate-900 border-2 border-slate-300 hover:border-slate-400 shadow-sm"
+                    ? "bg-[#24152e] hover:bg-[#2e1b3a] text-rose-100 border-2 border-rose-800/60"
+                    : "bg-white hover:bg-slate-50 text-slate-900 border-2 border-slate-300 shadow-sm"
                 }`}
               >
                 {/* Visual Check Indicator */}
@@ -213,7 +503,7 @@ export default function SettingsPage() {
                 <div
                   className={`w-12 h-6 rounded-full transition-colors relative ms-1 hidden sm:block ${
                     deliveryEnabled
-                      ? "bg-emerald-700/50"
+                      ? "bg-emerald-700/60"
                       : dark
                       ? "bg-[#140b1b] border border-rose-900/60"
                       : "bg-slate-300 border border-slate-300"
@@ -240,30 +530,40 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Detailed Behavior Explanation Box */}
+          {/* Detailed Behavior Explanation Box (FIXED HIGH-CONTRAST COLORS) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Card 1: ACTIVÉ */}
             <div
-              className={`p-4 sm:p-5 rounded-2xl border transition-all ${
-                deliveryEnabled
+              style={{
+                backgroundColor: deliveryEnabled
                   ? dark
-                    ? "bg-emerald-950/40 border-2 border-emerald-500 text-emerald-100 shadow-sm"
-                    : "bg-emerald-50/90 border-2 border-emerald-500 text-emerald-950 shadow-sm"
+                    ? "rgba(6, 78, 59, 0.4)"
+                    : "#ecfdf5"
                   : dark
-                  ? "bg-[#170e1e] border border-rose-950/60 text-rose-300/60"
-                  : "bg-slate-50 border border-slate-200 text-slate-700"
-              }`}
+                  ? "#180e22"
+                  : "#f8fafc",
+                borderColor: deliveryEnabled ? "#10b981" : dark ? "rgba(244,63,94,0.2)" : "#cbd5e1",
+                color: deliveryEnabled
+                  ? dark
+                    ? "#d1fae5"
+                    : "#064e3b"
+                  : dark
+                  ? "#fbcfe8"
+                  : "#1e293b"
+              }}
+              className="p-5 rounded-2xl border-2 transition-all"
             >
               <div
-                className={`flex items-center gap-2 font-extrabold text-xs sm:text-sm mb-2 ${
-                  deliveryEnabled
+                style={{
+                  color: deliveryEnabled
                     ? dark
-                      ? "text-emerald-300"
-                      : "text-emerald-900"
+                      ? "#34d399"
+                      : "#047857"
                     : dark
-                    ? "text-rose-300/70"
-                    : "text-slate-700"
-                }`}
+                    ? "#fda4af"
+                    : "#334155"
+                }}
+                className="flex items-center gap-2 font-black text-sm mb-2"
               >
                 <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
                 <span>
@@ -273,15 +573,16 @@ export default function SettingsPage() {
                 </span>
               </div>
               <ul
-                className={`text-xs space-y-1.5 list-disc list-inside leading-relaxed ${
-                  deliveryEnabled
+                style={{
+                  color: deliveryEnabled
                     ? dark
-                      ? "text-emerald-100 font-medium"
-                      : "text-emerald-950 font-medium"
+                      ? "#ecfdf5"
+                      : "#064e3b"
                     : dark
-                    ? "text-rose-300/60"
-                    : "text-slate-600"
-                }`}
+                    ? "#fbcfe8"
+                    : "#334155"
+                }}
+                className="text-xs space-y-2 list-disc list-inside leading-relaxed font-semibold"
               >
                 <li>
                   {lang === "ar"
@@ -303,46 +604,55 @@ export default function SettingsPage() {
 
             {/* Card 2: DÉSACTIVÉ */}
             <div
-              className={`p-4 sm:p-5 rounded-2xl border transition-all ${
-                !deliveryEnabled
+              style={{
+                backgroundColor: !deliveryEnabled
                   ? dark
-                    ? "bg-rose-950/40 border-2 border-rose-600 text-rose-100 shadow-sm"
-                    : "bg-rose-50/90 border-2 border-rose-400 text-slate-900 shadow-sm"
+                    ? "rgba(136, 19, 55, 0.4)"
+                    : "#fff1f2"
                   : dark
-                  ? "bg-[#170e1e] border border-rose-950/60 text-rose-300/60"
-                  : "bg-slate-50 border border-slate-200 text-slate-700"
-              }`}
+                  ? "#180e22"
+                  : "#f8fafc",
+                borderColor: !deliveryEnabled ? "#f43f5e" : dark ? "rgba(244,63,94,0.2)" : "#cbd5e1",
+                color: !deliveryEnabled
+                  ? dark
+                    ? "#ffe4e6"
+                    : "#881337"
+                  : dark
+                  ? "#fbcfe8"
+                  : "#1e293b"
+              }}
+              className="p-5 rounded-2xl border-2 transition-all"
             >
               <div
-                className={`flex items-center gap-2 font-extrabold text-xs sm:text-sm mb-2 ${
-                  !deliveryEnabled
+                style={{
+                  color: !deliveryEnabled
                     ? dark
-                      ? "text-rose-300"
-                      : "text-rose-700"
+                      ? "#fb7185"
+                      : "#be123c"
                     : dark
-                    ? "text-rose-300/70"
-                    : "text-slate-700"
-                }`}
+                    ? "#fda4af"
+                    : "#334155"
+                }}
+                className="flex items-center gap-2 font-black text-sm mb-2"
               >
                 <Circle className="w-4 h-4 shrink-0 text-rose-500" />
                 <span>
                   {lang === "ar"
                     ? "عند إلغاء التحديد (معطّل - الوضع الافتراضي)"
-                    : lang === "fr"
-                    ? "Lorsque Non Coché (DÉSACTIVÉ - Par défaut)"
-                    : "When Unchecked (DEACTIVATED - Default)"}
+                    : "Lorsque Non Coché (DÉSACTIVÉ - Par défaut)"}
                 </span>
               </div>
               <ul
-                className={`text-xs space-y-1.5 list-disc list-inside leading-relaxed ${
-                  !deliveryEnabled
+                style={{
+                  color: !deliveryEnabled
                     ? dark
-                      ? "text-rose-100 font-medium"
-                      : "text-slate-900 font-medium"
+                      ? "#fff1f2"
+                      : "#4c0519"
                     : dark
-                    ? "text-rose-300/60"
-                    : "text-slate-600"
-                }`}
+                    ? "#fbcfe8"
+                    : "#334155"
+                }}
+                className="text-xs space-y-2 list-disc list-inside leading-relaxed font-semibold"
               >
                 <li>
                   {lang === "ar"
@@ -365,7 +675,9 @@ export default function SettingsPage() {
         </div>
       </Card>
 
-      {/* LIVE INTERACTIVE SIMULATION OF CLIENT ORDER FORM */}
+      {/* ======================================================== */}
+      {/* 3. SECTION: LIVE INTERACTIVE SIMULATION OF CLIENT ORDER */}
+      {/* ======================================================== */}
       <Card
         elevation={dark ? 5 : 2}
         sx={{
@@ -381,41 +693,51 @@ export default function SettingsPage() {
             </div>
             <div>
               <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-rose-50">
-                {t.settings.previewTitle}
+                {lang === "ar"
+                  ? "معاينة حية ومباشرة لاستمارة الزبونة مع الخصم والتوصيل"
+                  : "Aperçu en Direct de l'Impact sur la Fiche Client"}
               </h3>
               <p className="text-[11px] text-slate-600 dark:text-rose-300/70">
                 {deliveryEnabled
-                  ? t.settings.previewDescActive
-                  : t.settings.previewDescInactive}
+                  ? "Mode Actuel : Tarifs de livraison calculés et choix visibles"
+                  : "Mode Actuel : Tarifs Masqués (Total net sans livraison)"}
               </p>
             </div>
           </div>
 
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-extrabold border ${
-              deliveryEnabled
-                ? dark
-                  ? "bg-emerald-950/60 text-emerald-200 border-emerald-800"
-                  : "bg-emerald-100 text-emerald-900 border-emerald-300"
-                : dark
-                ? "bg-rose-950/60 text-rose-200 border-rose-800"
-                : "bg-rose-100 text-rose-900 border-rose-300"
-            }`}
-          >
-            {deliveryEnabled
-              ? "✓ Mode Actuel : Tarifs & Choix Actifs"
-              : "○ Mode Actuel : Tarifs Masqués (Total sans livraison)"}
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-extrabold border ${
+                deliveryEnabled
+                  ? dark
+                    ? "bg-emerald-950/60 text-emerald-200 border-emerald-800"
+                    : "bg-emerald-100 text-emerald-900 border-emerald-300"
+                  : dark
+                  ? "bg-rose-950/60 text-rose-200 border-rose-800"
+                  : "bg-rose-100 text-rose-900 border-rose-300"
+              }`}
+            >
+              {deliveryEnabled
+                ? "✓ Livraison Active"
+                : "○ Livraison Masquée"}
+            </span>
+
+            {discountForm.enabled && (
+              <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-pink-100 dark:bg-pink-950/60 text-pink-900 dark:text-pink-200 border border-pink-300 dark:border-pink-800">
+                🏷️ Remise Membre {discountForm.discountPercent}% Active
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Mockup Form Display */}
+        {/* Mockup Form Display (FIXED CONTRAST INPUTS) */}
         <div
           dir={isRtl ? "rtl" : "ltr"}
-          className={`p-5 sm:p-6 rounded-2xl border space-y-4 max-w-xl mx-auto shadow-sm ${
-            dark
-              ? "bg-[#1a1122] border-rose-900/60"
-              : "bg-white border-2 border-rose-200"
-          }`}
+          style={{
+            backgroundColor: dark ? "#1a1122" : "#ffffff",
+            borderColor: dark ? "rgba(244,63,94,0.3)" : "#fecdd3"
+          }}
+          className="p-5 sm:p-6 rounded-2xl border-2 space-y-4 max-w-xl mx-auto shadow-sm"
         >
           <div className="text-xs font-bold text-rose-600 dark:text-rose-400 pb-1 border-b border-rose-500/15 flex items-center justify-between">
             <span>
@@ -428,33 +750,79 @@ export default function SettingsPage() {
             </span>
           </div>
 
-          {/* Simulated Wilaya & Commune */}
+          {/* Member Discount Badge on Client Form */}
+          {discountForm.enabled ? (
+            <div className="p-3 rounded-2xl bg-gradient-to-r from-emerald-500/15 to-teal-500/15 border-2 border-emerald-500/40 text-emerald-900 dark:text-emerald-200 text-xs font-bold flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-xs font-black shrink-0">
+                  %{discountForm.discountPercent}
+                </span>
+                <span className="text-[11px] sm:text-xs">
+                  {lang === "ar"
+                    ? discountForm.bannerTextAr
+                    : discountForm.bannerTextFr}
+                </span>
+              </div>
+              <Chip
+                size="small"
+                label={`${discountForm.discountPercent}% OFF`}
+                sx={{
+                  bgcolor: "#10b981",
+                  color: "#ffffff",
+                  fontWeight: 900,
+                  fontSize: "10px"
+                }}
+              />
+            </div>
+          ) : (
+            <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-rose-950/20 text-slate-600 dark:text-rose-300/70 text-xs text-center border border-dashed border-slate-300 dark:border-rose-900/60 font-medium">
+              {lang === "ar"
+                ? "الخصم معطل حالياً (الزبائن يشترون بالسعر العادي دون تخفيض)"
+                : "Remise membre désactivée (achat au prix standard)"}
+            </div>
+          )}
+
+          {/* Simulated Wilaya & Commune with Guaranteed Contrast */}
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div
-              className={`p-2.5 rounded-xl border ${
-                dark
-                  ? "bg-[#24152d] border-rose-900/60 text-rose-100"
-                  : "bg-slate-50 border border-slate-300 text-slate-900 shadow-xs"
-              }`}
+              style={{
+                backgroundColor: dark ? "#24152d" : "#fdf2f4",
+                borderColor: dark ? "rgba(244,63,94,0.3)" : "#fbcfe8",
+                color: dark ? "#fff1f2" : "#0f172a"
+              }}
+              className="p-3 rounded-xl border shadow-xs"
             >
-              <span className="block text-[11px] font-bold text-slate-600 dark:text-rose-300/80">
+              <span
+                style={{ color: dark ? "#fda4af" : "#9f1239" }}
+                className="block text-[11px] font-bold"
+              >
                 Wilaya:
               </span>
-              <span className="font-extrabold text-slate-950 dark:text-white">
+              <span
+                style={{ color: dark ? "#ffffff" : "#0f172a" }}
+                className="font-black text-xs sm:text-sm"
+              >
                 16 - Alger (الجزائر)
               </span>
             </div>
             <div
-              className={`p-2.5 rounded-xl border ${
-                dark
-                  ? "bg-[#24152d] border-rose-900/60 text-rose-100"
-                  : "bg-slate-50 border border-slate-300 text-slate-900 shadow-xs"
-              }`}
+              style={{
+                backgroundColor: dark ? "#24152d" : "#fdf2f4",
+                borderColor: dark ? "rgba(244,63,94,0.3)" : "#fbcfe8",
+                color: dark ? "#fff1f2" : "#0f172a"
+              }}
+              className="p-3 rounded-xl border shadow-xs"
             >
-              <span className="block text-[11px] font-bold text-slate-600 dark:text-rose-300/80">
+              <span
+                style={{ color: dark ? "#fda4af" : "#9f1239" }}
+                className="block text-[11px] font-bold"
+              >
                 Commune:
               </span>
-              <span className="font-extrabold text-slate-950 dark:text-white">
+              <span
+                style={{ color: dark ? "#ffffff" : "#0f172a" }}
+                className="font-black text-xs sm:text-sm"
+              >
                 Bab El Oued
               </span>
             </div>
@@ -533,35 +901,41 @@ export default function SettingsPage() {
 
           {/* Price Calculation Simulation */}
           <div
-            className={`p-3.5 rounded-xl border space-y-1.5 text-xs ${
-              dark
-                ? "bg-[#24152d] border-rose-900/60 text-rose-100"
-                : "bg-slate-50 border border-slate-200 text-slate-900 shadow-xs"
-            }`}
+            style={{
+              backgroundColor: dark ? "#24152d" : "#fff1f2",
+              borderColor: dark ? "rgba(244,63,94,0.3)" : "#fecdd3"
+            }}
+            className="p-4 rounded-xl border space-y-2 text-xs"
           >
             <div className="flex justify-between">
-              <span className="text-slate-600 dark:text-rose-300/80 font-medium">
-                Sous-total Livre (1 × 1 500 DZD):
+              <span className="text-slate-700 dark:text-rose-200 font-medium">
+                Sous-total Livre (1 × {formatDzd(previewUnitPrice)}):
               </span>
               <span className="font-bold text-slate-950 dark:text-white">
-                {formatDzd(1500)}
+                {formatDzd(previewSubtotal)}
               </span>
             </div>
+
+            {discountForm.enabled && previewDiscountAmount > 0 && (
+              <div className="flex justify-between text-emerald-700 dark:text-emerald-400 font-extrabold">
+                <span className="flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Remise Membre Connecté (-{discountForm.discountPercent}%):</span>
+                </span>
+                <span>- {formatDzd(previewDiscountAmount)}</span>
+              </div>
+            )}
 
             {deliveryEnabled && (
               <div className="flex justify-between text-emerald-800 dark:text-emerald-300 font-bold">
                 <span>Frais de Livraison (16 - Alger • À la maison):</span>
-                <span>{formatDzd(sampleWilaya.homePrice)}</span>
+                <span>{formatDzd(previewDeliveryFee)}</span>
               </div>
             )}
 
-            <div className="border-t border-rose-500/20 pt-1.5 flex justify-between font-black text-sm text-rose-600 dark:text-rose-400">
-              <span>Total à Payer:</span>
-              <span>
-                {deliveryEnabled
-                  ? formatDzd(1500 + Number(sampleWilaya.homePrice))
-                  : formatDzd(1500)}
-              </span>
+            <div className="border-t border-rose-500/20 pt-2 flex justify-between font-black text-sm sm:text-base text-rose-600 dark:text-rose-400">
+              <span>Total Net à Payer:</span>
+              <span>{formatDzd(previewTotal)}</span>
             </div>
           </div>
         </div>

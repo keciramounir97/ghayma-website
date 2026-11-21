@@ -13,6 +13,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { useAppContext } from "../context/AppContext.jsx";
+import { registerUserAccount, loginUserAccount } from "../firebase.js";
 
 const AVATAR_OPTIONS = ["🌸", "🌺", "✨", "🌙", "📖", "☕", "🕊️", "🪞"];
 
@@ -30,7 +31,7 @@ export default function AuthModal() {
   const isRtl = lang === "ar";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (tab === "register" && !termsConsent) {
@@ -45,59 +46,71 @@ export default function AuthModal() {
 
     setLoading(true);
 
-    setTimeout(() => {
+    try {
       if (tab === "register") {
-        const newUser = {
-          id: "usr-" + Date.now(),
+        const newUser = await registerUserAccount({
           name: name.trim() || (lang === "ar" ? "قارئة غيمة" : "Lectrice Ghayma"),
-          email: email.trim() || `lectrice_${Date.now()}@ghayma.dz`,
+          email: email.trim(),
+          password: password.trim(),
           wilaya,
-          avatar,
-          createdAt: new Date().toISOString()
-        };
+          avatar
+        });
         registerUser(newUser);
         addToast(
           lang === "ar"
-            ? `أهلاً بكِ يا ${newUser.name} في مجتمع غيمة 🌸 تم إنشاء حسابكِ بنجاح!`
-            : `Bienvenue ${newUser.name} dans la communauté Ghayma ! 🌸 Compte créé avec succès.`
+            ? `أهلاً بكِ يا ${newUser.name} في مجتمع غيمة 🌸 تم إنشاء حسابكِ بنجاح مع خصم 5% على الكتب!`
+            : `Bienvenue ${newUser.name} dans la communauté Ghayma ! 🌸 Compte créé avec succès (5% de remise sur vos commandes).`
         );
       } else {
-        const loggedUser = {
-          id: "usr-" + Date.now(),
-          name: name.trim() || (email ? email.split("@")[0] : "Lectrice Ghayma"),
-          email: email.trim(),
-          wilaya,
-          avatar,
-          createdAt: new Date().toISOString()
-        };
+        const loggedUser = await loginUserAccount(email.trim(), password.trim());
         loginUser(loggedUser);
         addToast(
           lang === "ar"
-            ? `مرحباً بعودتكِ يا ${loggedUser.name} ✨`
-            : `Ravi de vous revoir ${loggedUser.name} ✨`
+            ? `مرحباً بعودتكِ يا ${loggedUser.name} ✨ تم تفعيل خصم 5% الخاص بالعضوات!`
+            : `Ravi de vous revoir ${loggedUser.name} ✨ Votre remise membre de 5% est active !`
         );
       }
-      setLoading(false);
       setAuthModalOpen(false);
-    }, 400);
+    } catch (err) {
+      addToast(err.message || "Erreur de connexion", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGuestQuickStart = () => {
-    const quickUser = {
-      id: "usr-" + Date.now(),
-      name: lang === "ar" ? "رفيقة الغيم 🌸" : "Lectrice Privilégiée 🌸",
-      email: `lectrice_${Math.floor(Math.random() * 9000 + 1000)}@ghayma.dz`,
-      wilaya: "16 - Alger (الجزائر)",
-      avatar: "🌸",
-      createdAt: new Date().toISOString()
-    };
-    loginUser(quickUser);
-    addToast(
-      lang === "ar"
-        ? "تم تسجيل الدخول السريع كعضوة في مجتمع غيمة! استمتعي بالتحديات ✨"
-        : "Connexion rapide réussie ! Vous avez accès à tous les défis Ghayma ✨"
-    );
-    setAuthModalOpen(false);
+  const handleGuestQuickStart = async () => {
+    setLoading(true);
+    try {
+      const guestEmail = `lectrice_${Date.now()}@ghayma.dz`;
+      const quickUser = await registerUserAccount({
+        name: lang === "ar" ? "رفيقة الغيم 🌸" : "Lectrice Privilégiée 🌸",
+        email: guestEmail,
+        password: "ghayma_guest_pass",
+        wilaya: "16 - Alger (الجزائر)",
+        avatar: "🌸"
+      });
+      loginUser(quickUser);
+      addToast(
+        lang === "ar"
+          ? "تم تسجيل الدخول السريع كعضوة في مجتمع غيمة! استمتعي بخصم 5% على طلباتكِ والتحديات ✨"
+          : "Connexion rapide réussie ! Vous profitez de 5% de remise et de tous les défis Ghayma ✨"
+      );
+      setAuthModalOpen(false);
+    } catch {
+      const quickUser = {
+        id: "usr-" + Date.now(),
+        name: lang === "ar" ? "رفيقة الغيم 🌸" : "Lectrice Privilégiée 🌸",
+        email: `lectrice_${Date.now()}@ghayma.dz`,
+        wilaya: "16 - Alger (الجزائر)",
+        avatar: "🌸",
+        role: "member",
+        createdAt: new Date().toISOString()
+      };
+      loginUser(quickUser);
+      setAuthModalOpen(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
