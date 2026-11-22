@@ -89,15 +89,20 @@ export default function GhaymaChallengesPage() {
     addToast
   } = useAppContext();
 
+  const isAr = lang === "ar";
+
   // Primary active challenge: Praying Fajr until end of November
   const primaryChallenge = useMemo(() => {
+    const list = Array.isArray(challenges) ? challenges : [];
     return (
-      challenges.find((c) => c.id === "fajr-prayer-nov-2026") ||
-      challenges[0] || {
+      list.find((c) => c.id === "fajr-prayer-nov-2026") ||
+      list[0] || {
         id: "fajr-prayer-nov-2026",
         title: "تحدي صلاة الفجر في وقتها حتى نهاية نوفمبر 🤲✨",
         titleFr: "Défi Prière du Fajr à l'Heure jusqu'à la fin Novembre ✨",
         titleEn: "Fajr Prayer on Time Challenge until End of November ✨",
+        description: "انضمي إلى مئات القارئات في روتين الفجر المبارك وبناء سكينة الصباح مع غيمة 🌸",
+        descriptionFr: "Rejoignez notre communauté bienveillante pour ancrer la prière du Fajr à l'heure et débuter vos journées dans la sérénité 🌸",
         endDate: "2026-11-30T23:59:59.000Z",
         habits: [
           "الاستيقاظ 15 دقيقة قبل أذان الفجر ⏰",
@@ -110,7 +115,7 @@ export default function GhaymaChallengesPage() {
     );
   }, [challenges]);
 
-  const countdown = useCountdown(primaryChallenge.endDate || "2026-11-30T23:59:59.000Z");
+  const countdown = useCountdown(primaryChallenge?.endDate || "2026-11-30T23:59:59.000Z");
 
   // Track completed days in the November calendar (1 to 30)
   const [completedDays, setCompletedDays] = useState(() => {
@@ -155,15 +160,24 @@ export default function GhaymaChallengesPage() {
 
   // Push notifications state
   const [pushEnabled, setPushEnabled] = useState(() => {
-    if (typeof window !== "undefined" && "Notification" in window) {
-      return Notification.permission === "granted";
+    try {
+      if (typeof window !== "undefined" && "Notification" in window) {
+        return Notification.permission === "granted";
+      }
+    } catch (_) {
+      return false;
     }
     return false;
   });
 
   // Track joined challenges
   const [isJoined, setIsJoined] = useState(() => {
-    return localStorage.getItem(`ghayma_joined_${primaryChallenge.id}`) === "true";
+    try {
+      const challengeId = primaryChallenge?.id || "fajr-prayer-nov-2026";
+      return localStorage.getItem(`ghayma_joined_${challengeId}`) === "true";
+    } catch (_) {
+      return false;
+    }
   });
 
   // Fetch Prayer Times from Aladhan API with reliable fallback
@@ -969,7 +983,7 @@ export default function GhaymaChallengesPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {challengePosts.map((post) => (
+              {(challengePosts || []).map((post) => (
                 <ChallengePostCard
                   key={post.id}
                   post={post}
