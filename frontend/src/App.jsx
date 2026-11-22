@@ -18,6 +18,7 @@ const ContactPage = lazy(() => import("./pages/ContactPage.jsx"));
 const GhaymaChallengesPage = lazy(() => import("./pages/GhaymaChallengesPage.jsx"));
 const ArticlesPage = lazy(() => import("./pages/ArticlesPage.jsx"));
 const ArticleDetailsPage = lazy(() => import("./pages/ArticleDetailsPage.jsx"));
+const DeliveryPage = lazy(() => import("./pages/DeliveryPage.jsx"));
 const PrivacyPolicyPage = lazy(() => import("./pages/PrivacyPolicyPage.jsx"));
 const TermsPage = lazy(() => import("./pages/TermsPage.jsx"));
 const RefundPolicyPage = lazy(() => import("./pages/RefundPolicyPage.jsx"));
@@ -69,6 +70,8 @@ function FrontendShell() {
             <Route path="/book/:id" element={<BookDetailsPage />} />
             <Route path="/about" element={<AboutAuthorPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/delivery" element={<DeliveryPage />} />
+            <Route path="/tarifs" element={<DeliveryPage />} />
 
             {/* Legal / Policy Routes (Prompt One Compliance) */}
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
