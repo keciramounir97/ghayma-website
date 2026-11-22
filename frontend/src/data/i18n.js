@@ -5,19 +5,19 @@ export const TRANSLATIONS = {
     currency: "د.ج",
     nav: {
       home: "الرئيسية",
-      books: "مؤلفاتي والكتب",
-      challenges: "التحديات 🌸",
+      books: "الكتب",
+      challenges: "التحديات",
       about: "عن الكاتبة",
-      contact: "تواصلي معي",
-      orderNow: "اطلبي كتابك الآن",
-      cart: "سلة الطلبات"
+      contact: "اتصلي بنا",
+      orderNow: "اطلبي الآن 🌸",
+      cart: "السلة"
     },
     breadcrumbs: {
       home: "الرئيسية",
-      books: "المتجر والكتب",
+      books: "الكتب",
       challenges: "التحديات",
-      about: "عن ghayma_rd (ر. دحمان)",
-      contact: "تواصلي معنا",
+      about: "عن الكاتبة",
+      contact: "اتصلي بنا",
       checkout: "تأكيد الطلب"
     },
     hero: {
@@ -161,19 +161,19 @@ export const TRANSLATIONS = {
     currency: "DZD",
     nav: {
       home: "Accueil",
-      books: "Boutique & Livres",
-      challenges: "Défis 🌸",
-      about: "À Propos de l'Écrivaine",
+      books: "Livres",
+      challenges: "Défis",
+      about: "À propos",
       contact: "Contact",
-      orderNow: "Commander",
+      orderNow: "Commander 🌸",
       cart: "Panier"
     },
     breadcrumbs: {
       home: "Accueil",
-      books: "Livres & Boutique",
+      books: "Livres",
       challenges: "Défis",
-      about: "À Propos de l'Écrivaine",
-      contact: "Contactez-nous",
+      about: "À propos",
+      contact: "Contact",
       checkout: "Commander"
     },
     hero: {
@@ -317,19 +317,19 @@ export const TRANSLATIONS = {
     currency: "DZD",
     nav: {
       home: "Home",
-      books: "Books & Shop",
-      challenges: "Challenges 🌸",
-      about: "About the Author",
+      books: "Books",
+      challenges: "Challenges",
+      about: "About",
       contact: "Contact",
-      orderNow: "Order Now",
-      cart: "Order Bag"
+      orderNow: "Order 🌸",
+      cart: "Cart"
     },
     breadcrumbs: {
       home: "Home",
-      books: "Books & Shop",
+      books: "Books",
       challenges: "Challenges",
-      about: "About the Author",
-      contact: "Contact Us",
+      about: "About",
+      contact: "Contact",
       checkout: "Checkout"
     },
     hero: {

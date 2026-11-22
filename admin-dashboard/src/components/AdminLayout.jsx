@@ -84,20 +84,20 @@ export default function AdminLayout({ children }) {
     },
     {
       to: "/settings",
-      label: t.nav.settings || "Paramètres & Livraison",
+      label: t.nav.settings,
       icon: Sliders,
       badge: deliveryEnabled ? "✓" : "○"
     },
     {
       to: "/challenges",
-      label: t.nav.challenges || "Défis & Blog Ghayma",
+      label: t.nav.challenges,
       icon: Trophy,
       badge: "Nouveau ✨",
       badgeColor: "bg-rose-500/20 text-rose-500"
     },
     {
       to: "/articles",
-      label: lang === "ar" ? "المقالات والخواطر" : "Articles & Blog",
+      label: t.nav.articles,
       icon: Feather,
       badge: (articles || []).length
     },

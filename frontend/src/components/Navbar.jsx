@@ -123,24 +123,24 @@ export default function Navbar() {
 
   const discoverMenuItems = [
     {
-      to: "/articles",
-      label: lang === "ar" ? "المقالات والخواطر 🪶" : "Articles & Pensées 🪶",
-      desc: lang === "ar" ? "خواطر وتأملات وجدانية دافئة" : "Textes et réflexions de l'écrivaine"
-    },
-    {
       to: "/challenges",
-      label: lang === "ar" ? "تحديات غيمة ✨" : "Défis Ghayma ✨",
-      desc: lang === "ar" ? "تحديات تفاعلية، إنجازات يومية ومجتمع غيمة" : "Défis interactifs, routines et communauté"
+      label: lang === "ar" ? "التحديات 🌸" : "Défis 🌸",
+      desc: lang === "ar" ? "تحدي الفجر، روتين يومي ومجتمع غيمة" : "Routine spirituelle, calendrier & communauté"
     },
     {
-      to: "/about",
-      label: lang === "ar" ? "عن الكاتبة غيمة 🌸" : "À propos de l'Écrivaine 🌸",
-      desc: lang === "ar" ? "سيرة ghayma_rd ومسيرتها الأدبية" : "Biographie, valeurs et vision"
+      to: "/articles",
+      label: lang === "ar" ? "المقالات 🪶" : "Articles 🪶",
+      desc: lang === "ar" ? "خواطر وتأملات وجدانية دافئة" : "Écrits et pensées littéraires"
     },
     {
       to: "/delivery",
-      label: lang === "ar" ? "أسعار التوصيل 69 ولاية 🚚" : "Tarifs de livraison 69 Wilayas 🚚",
-      desc: lang === "ar" ? "توصيل للمنزل أو المكتب لجميع ولايات الوطن" : "À domicile ou en agence"
+      label: lang === "ar" ? "التوصيل 🚚" : "Livraison 🚚",
+      desc: lang === "ar" ? "أسعار التوصيل لـ 69 ولاية جزائرية" : "Tarifs à domicile et agence (69 Wilayas)"
+    },
+    {
+      to: "/about",
+      label: lang === "ar" ? "عن الكاتبة 🌸" : "À propos 🌸",
+      desc: lang === "ar" ? "سيرة ghayma_rd ومسيرتها الأدبية" : "Biographie et parcours de l'auteure"
     }
   ];
 
@@ -238,10 +238,10 @@ export default function Navbar() {
           </div>
 
           {/* Center: Desktop Navigation with Dropdown to Save Space */}
-          <nav className="hidden lg:flex items-center gap-1.5">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
             <Link
               to="/"
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+              className={`inline-flex items-center gap-1.5 px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full text-xs xl:text-sm font-semibold transition-all ${
                 location.pathname === "/"
                   ? "bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md shadow-rose-500/25"
                   : dark
@@ -249,13 +249,13 @@ export default function Navbar() {
                   : "text-slate-700 hover:text-rose-600 hover:bg-rose-50"
               }`}
             >
-              <HomeIcon className="w-4 h-4" />
+              <HomeIcon className="w-3.5 h-3.5" />
               <span>{t.nav.home}</span>
             </Link>
 
             <Link
               to="/books"
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+              className={`inline-flex items-center gap-1.5 px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full text-xs xl:text-sm font-semibold transition-all ${
                 location.pathname.startsWith("/book")
                   ? "bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md shadow-rose-500/25"
                   : dark
@@ -263,16 +263,16 @@ export default function Navbar() {
                   : "text-slate-700 hover:text-rose-600 hover:bg-rose-50"
               }`}
             >
-              <BookOpen className="w-4 h-4" />
+              <BookOpen className="w-3.5 h-3.5" />
               <span>{t.nav.books}</span>
             </Link>
 
-            {/* DÉCOUVRIR DROPDOWN (Articles, Défis, À propos, Tarifs) */}
+            {/* DÉCOUVRIR DROPDOWN (Défis, Articles, Livraison, À propos) */}
             <div className="relative" ref={discoverRef}>
               <button
                 type="button"
                 onClick={() => setDiscoverDropdownOpen(!discoverDropdownOpen)}
-                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full text-xs xl:text-sm font-semibold transition-all cursor-pointer ${
                   location.pathname === "/articles" ||
                   location.pathname === "/challenges" ||
                   location.pathname === "/about" ||
@@ -283,10 +283,10 @@ export default function Navbar() {
                     : "text-slate-700 hover:text-rose-600 hover:bg-rose-50"
                 }`}
               >
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>{lang === "ar" ? "استكشفي 🌸" : "Découvrir"}</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>{lang === "ar" ? "استكشفي" : "Découvrir"}</span>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                  className={`w-3 h-3 transition-transform duration-200 ${
                     discoverDropdownOpen ? "rotate-180" : ""
                   }`}
                 />
@@ -329,7 +329,7 @@ export default function Navbar() {
 
             <Link
               to="/contact"
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+              className={`inline-flex items-center gap-1.5 px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full text-xs xl:text-sm font-semibold transition-all ${
                 location.pathname === "/contact"
                   ? "bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-md shadow-rose-500/25"
                   : dark
@@ -337,16 +337,16 @@ export default function Navbar() {
                   : "text-slate-700 hover:text-rose-600 hover:bg-rose-50"
               }`}
             >
-              <Mail className="w-4 h-4" />
+              <Mail className="w-3.5 h-3.5" />
               <span>{t.nav.contact}</span>
             </Link>
           </nav>
 
           {/* Right Controls: Desktop Language & Theme + Notifications + User Account Dropdown + Order CTA */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Desktop-only Language Switcher */}
+          <div className="flex items-center gap-1.5 xl:gap-2 shrink-0">
+            {/* Desktop Language Switcher */}
             <div
-              className={`hidden lg:flex items-center rounded-full p-1 border text-xs font-bold ${
+              className={`hidden xl:flex items-center rounded-full p-0.5 border text-[11px] font-bold ${
                 dark
                   ? "bg-[#211529] border-rose-900/50"
                   : "bg-rose-50/80 border-rose-200/70"
@@ -356,11 +356,11 @@ export default function Navbar() {
                 <button
                   key={code}
                   onClick={() => handleLanguageSwitch(code)}
-                  className={`px-2.5 py-1 rounded-full uppercase transition-all cursor-pointer ${
+                  className={`px-2 py-0.5 rounded-full uppercase transition-all cursor-pointer ${
                     lang === code
-                      ? "bg-rose-500 text-white shadow-sm"
+                      ? "bg-rose-500 text-white shadow-xs"
                       : dark
-                      ? "text-rose-200/70 hover:text-white"
+                      ? "text-rose-200 hover:text-white"
                       : "text-slate-600 hover:text-rose-600"
                   }`}
                 >
@@ -369,28 +369,18 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* Desktop-only Theme Toggle */}
-            <div className="hidden lg:block">
-              <IconButton
-                onClick={handleThemeToggle}
-                aria-label="Toggle theme"
-                sx={{
-                  color: dark ? "#fcd34d" : "#e11d48",
-                  bgcolor: dark ? "#211529" : "#fff1f2",
-                  border: dark
-                    ? "1px solid rgba(136,19,55,0.5)"
-                    : "1px solid #fecdd3",
-                  width: 40,
-                  height: 40
-                }}
-              >
-                {dark ? (
-                  <Sun className="w-4 h-4" />
-                ) : (
-                  <Moon className="w-4 h-4" />
-                )}
-              </IconButton>
-            </div>
+            {/* Desktop Dark/Light Theme Switcher */}
+            <button
+              onClick={() => setDark((prev) => !prev)}
+              aria-label="Toggle theme"
+              className={`hidden lg:inline-flex items-center justify-center w-8 h-8 xl:w-9 xl:h-9 rounded-full border transition-all cursor-pointer ${
+                dark
+                  ? "bg-[#211529] border-rose-900/50 text-amber-300 hover:bg-rose-950/60"
+                  : "bg-rose-50/80 border-rose-200/70 text-slate-700 hover:text-rose-600 hover:bg-rose-100/70"
+              }`}
+            >
+              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
 
             {/* Notifications Bell */}
             <div className="relative">
@@ -474,16 +464,16 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-full border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 p-1 sm:px-2.5 sm:py-1 rounded-full border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 transition-all cursor-pointer shrink-0"
                 >
-                  <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rose-500 text-white flex items-center justify-center text-sm font-bold shadow-xs">
+                  <span className="w-7 h-7 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold shadow-xs">
                     {currentUser.avatar || "🌸"}
                   </span>
-                  <span className="text-xs font-bold text-slate-800 dark:text-rose-100 hidden sm:inline max-w-[100px] truncate">
+                  <span className="text-xs font-bold text-slate-800 dark:text-rose-100 hidden md:inline max-w-[75px] xl:max-w-[110px] truncate">
                     {currentUser.name}
                   </span>
                   <ChevronDown
-                    className={`w-3.5 h-3.5 text-rose-500 transition-transform ${
+                    className={`w-3 h-3 text-rose-500 transition-transform ${
                       userDropdownOpen ? "rotate-180" : ""
                     }`}
                   />
