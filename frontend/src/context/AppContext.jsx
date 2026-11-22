@@ -121,11 +121,29 @@ export function AppProvider({ children }) {
           }
         },
         components: {
+          MuiCssBaseline: {
+            styleOverrides: {
+              "*": {
+                scrollbarWidth: "none !important",
+                msOverflowStyle: "none !important",
+                "&::-webkit-scrollbar": {
+                  display: "none !important",
+                  width: "0 !important",
+                  height: "0 !important"
+                }
+              }
+            }
+          },
           MuiCard: {
             styleOverrides: {
               root: {
                 backgroundImage: "none",
-                transition: "box-shadow 250ms ease, border-color 250ms ease"
+                transition: "box-shadow 250ms ease, border-color 250ms ease",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+                "&::-webkit-scrollbar": {
+                  display: "none"
+                }
               }
             }
           },
@@ -133,7 +151,12 @@ export function AppProvider({ children }) {
             styleOverrides: {
               paper: {
                 borderRadius: 24,
-                backgroundImage: "none"
+                backgroundImage: "none",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+                "&::-webkit-scrollbar": {
+                  display: "none"
+                }
               }
             }
           }
