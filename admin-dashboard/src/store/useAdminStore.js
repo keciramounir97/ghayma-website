@@ -5,7 +5,9 @@ import {
   INITIAL_HOME,
   INITIAL_FOOTER,
   INITIAL_CHALLENGES,
-  INITIAL_POSTS
+  INITIAL_POSTS,
+  INITIAL_ARTICLES,
+  INITIAL_COMMENTS
 } from "../data/initialData.js";
 import { WILAYAS_69 } from "../data/wilayas.js";
 import { ADMIN_TRANSLATIONS } from "../data/i18n.js";
