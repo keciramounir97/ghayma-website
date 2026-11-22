@@ -342,155 +342,75 @@ export default function Navbar() {
             </Link>
           </nav>
 
-          {/* Right Controls: Desktop Language & Theme + Notifications + User Account Dropdown + Order CTA */}
-          <div className="flex items-center gap-1.5 xl:gap-2 shrink-0">
-            {/* Desktop Language Switcher */}
-            <div
-              className={`hidden xl:flex items-center rounded-full p-0.5 border text-[11px] font-bold ${
-                dark
-                  ? "bg-[#211529] border-rose-900/50"
-                  : "bg-rose-50/80 border-rose-200/70"
-              }`}
-            >
-              {["ar", "fr", "en"].map((code) => (
-                <button
-                  key={code}
-                  onClick={() => handleLanguageSwitch(code)}
-                  className={`px-2 py-0.5 rounded-full uppercase transition-all cursor-pointer ${
-                    lang === code
-                      ? "bg-rose-500 text-white shadow-xs"
-                      : dark
-                      ? "text-rose-200 hover:text-white"
-                      : "text-slate-600 hover:text-rose-600"
-                  }`}
-                >
-                  {code}
-                </button>
-              ))}
-            </div>
-
-            {/* Desktop Dark/Light Theme Switcher */}
-            <button
-              onClick={() => setDark((prev) => !prev)}
-              aria-label="Toggle theme"
-              className={`hidden lg:inline-flex items-center justify-center w-8 h-8 xl:w-9 xl:h-9 rounded-full border transition-all cursor-pointer ${
-                dark
-                  ? "bg-[#211529] border-rose-900/50 text-amber-300 hover:bg-rose-950/60"
-                  : "bg-rose-50/80 border-rose-200/70 text-slate-700 hover:text-rose-600 hover:bg-rose-100/70"
-              }`}
-            >
-              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-
-            {/* Notifications Bell */}
-            <div className="relative">
-              <IconButton
-                onClick={() => {
-                  setNotifOpen(!notifOpen);
-                  markAllNotificationsRead();
-                }}
-                aria-label="Notifications"
-                sx={{
-                  color: dark ? "#fecdd3" : "#e11d48",
-                  bgcolor: dark ? "#211529" : "#fff1f2",
-                  border: dark
-                    ? "1px solid rgba(136,19,55,0.5)"
-                    : "1px solid #fecdd3",
-                  width: 40,
-                  height: 40
-                }}
-              >
-                <Badge badgeContent={unreadCount} color="primary">
-                  <Bell className="w-4 h-4" />
-                </Badge>
-              </IconButton>
-
-              {notifOpen && (
-                <div
-                  className={`absolute ${
-                    isRtl ? "left-0" : "right-0"
-                  } mt-3 w-76 sm:w-96 rounded-3xl shadow-2xl border p-4 z-50 ${
-                    dark
-                      ? "bg-[#1d1224] border-rose-900/60 text-rose-50"
-                      : "bg-white border-rose-100 text-slate-800"
-                  }`}
-                >
-                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-rose-500/15">
-                    <span className="font-bold text-sm flex items-center gap-2">
-                      <Bell className="w-4 h-4 text-rose-500" />
-                      {t.notifications.title}
-                    </span>
-                    <button
-                      onClick={clearNotifications}
-                      className="text-xs text-rose-500 hover:underline cursor-pointer"
-                    >
-                      {t.notifications.clearAll}
-                    </button>
-                  </div>
-                  {notifications.length === 0 ? (
-                    <p className="text-xs text-center py-6 opacity-60">
-                      {t.notifications.empty}
-                    </p>
-                  ) : (
-                    <div className="space-y-2.5 max-h-64 overflow-y-auto">
-                      {notifications.map((n) => (
-                        <div
-                          key={n.id}
-                          className={`p-3 rounded-2xl text-xs leading-relaxed ${
-                            dark ? "bg-[#281931]" : "bg-rose-50/70"
-                          }`}
-                        >
-                          <p className="font-medium">
-                            {lang === "ar"
-                              ? n.textAr
-                              : lang === "fr"
-                              ? n.textFr
-                              : n.textEn}
-                          </p>
-                          <span className="text-[10px] opacity-60 mt-1 block">
-                            {n.time}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* USER ACCOUNT DROPDOWN (Logged in vs Logged out) */}
-            {currentUser ? (
-              <div className="relative" ref={userDropdownRef}>
+          {/* Right Controls: Unified User Command Center Dropdown + Order CTA */}
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            {/* UNIFIED USER COMMAND CENTER DROPDOWN (Logged in & Guests) */}
+            <div className="relative" ref={userDropdownRef}>
+              {currentUser ? (
                 <button
                   type="button"
-                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  onClick={() => {
+                    setUserDropdownOpen(!userDropdownOpen);
+                    if (!userDropdownOpen) markAllNotificationsRead();
+                  }}
                   className="flex items-center gap-1.5 p-1 sm:px-2.5 sm:py-1 rounded-full border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 transition-all cursor-pointer shrink-0"
+                  aria-label="Espace Membre"
                 >
-                  <span className="w-7 h-7 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold shadow-xs">
+                  <span className="relative w-7 h-7 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold shadow-xs">
                     {currentUser.avatar || "🌸"}
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-[#1d1224]" />
+                    )}
                   </span>
-                  <span className="text-xs font-bold text-slate-800 dark:text-rose-100 hidden md:inline max-w-[75px] xl:max-w-[110px] truncate">
+                  <span className="text-xs font-bold text-slate-800 dark:text-rose-100 hidden md:inline max-w-[80px] xl:max-w-[120px] truncate">
                     {currentUser.name}
                   </span>
                   <ChevronDown
-                    className={`w-3 h-3 text-rose-500 transition-transform ${
+                    className={`w-3.5 h-3.5 text-rose-500 transition-transform ${
                       userDropdownOpen ? "rotate-180" : ""
                     }`}
                   />
                 </button>
-
-                {/* Rich User Account Dropdown Menu */}
-                {userDropdownOpen && (
-                  <div
-                    className={`absolute ${
-                      isRtl ? "left-0" : "right-0"
-                    } mt-3 w-76 sm:w-80 rounded-3xl shadow-2xl border p-4 z-50 backdrop-blur-xl animate-fade-in ${
-                      dark
-                        ? "bg-[#1d1224]/98 border-rose-900/60 text-rose-50"
-                        : "bg-white/98 border-rose-100 text-slate-800"
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUserDropdownOpen(!userDropdownOpen);
+                    if (!userDropdownOpen) markAllNotificationsRead();
+                  }}
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-300 transition-all cursor-pointer shrink-0 shadow-xs"
+                  aria-label="Mon Espace"
+                >
+                  <span className="relative flex items-center justify-center">
+                    <User className="w-4 h-4 text-rose-500" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-[#1d1224]" />
+                    )}
+                  </span>
+                  <span className="text-xs font-bold hidden sm:inline">
+                    {lang === "ar" ? "حسابي 🌸" : "Mon Espace 🌸"}
+                  </span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 text-rose-500 transition-transform ${
+                      userDropdownOpen ? "rotate-180" : ""
                     }`}
-                  >
-                    {/* User Profile Card */}
+                  />
+                </button>
+              )}
+
+              {/* Rich User Account & Command Hub Dropdown Menu */}
+              {userDropdownOpen && (
+                <div
+                  className={`absolute ${
+                    isRtl ? "left-0" : "right-0"
+                  } mt-3 w-80 sm:w-96 rounded-3xl shadow-2xl border p-4 z-50 backdrop-blur-xl animate-fade-in ${
+                    dark
+                      ? "bg-[#1d1224]/98 border-rose-900/60 text-rose-50"
+                      : "bg-white/98 border-rose-100 text-slate-800"
+                  }`}
+                >
+                  {/* 1. Member Profile or Guest Welcome Card */}
+                  {currentUser ? (
                     <div className="flex items-center gap-3 pb-3 mb-3 border-b border-rose-500/15">
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 text-white flex items-center justify-center text-2xl shadow-md shrink-0">
                         {currentUser.avatar || "🌸"}
@@ -508,60 +428,214 @@ export default function Navbar() {
                         </div>
                       </div>
                     </div>
-
-                    {/* Quick Profile Links */}
-                    <div className="space-y-1 text-xs">
-                      <Link
-                        to="/challenges"
-                        onClick={() => setUserDropdownOpen(false)}
-                        className={`flex items-center gap-2.5 p-2.5 rounded-xl transition-all ${
-                          dark ? "hover:bg-rose-950/60" : "hover:bg-rose-50"
-                        }`}
-                      >
-                        <Sparkles className="w-4 h-4 text-amber-500" />
-                        <span>{lang === "ar" ? "تحدياتي وروتيني اليومي" : "Mes Défis & Routines"}</span>
-                      </Link>
-
-                      <Link
-                        to="/articles"
-                        onClick={() => setUserDropdownOpen(false)}
-                        className={`flex items-center gap-2.5 p-2.5 rounded-xl transition-all ${
-                          dark ? "hover:bg-rose-950/60" : "hover:bg-rose-50"
-                        }`}
-                      >
-                        <Feather className="w-4 h-4 text-rose-500" />
-                        <span>{lang === "ar" ? "المقالات والخواطر" : "Articles & Réflexions"}</span>
-                      </Link>
-
+                  ) : (
+                    <div className="pb-3 mb-3 border-b border-rose-500/15 space-y-2.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-500 to-amber-400 text-white flex items-center justify-center text-xl shadow-md shrink-0">
+                          🌸
+                        </div>
+                        <div>
+                          <div className="font-bold text-sm text-slate-900 dark:text-white">
+                            {lang === "ar" ? "أهلاً بكِ في غيمة ✨" : "Bienvenue chez Ghayma ✨"}
+                          </div>
+                          <div className="text-[10px] text-rose-500 font-semibold">
+                            {lang === "ar" ? "خصم 5% للأعضاء المسجلين 🎁" : "-5% de remise pour les membres 🎁"}
+                          </div>
+                        </div>
+                      </div>
                       <button
                         type="button"
                         onClick={() => {
                           setUserDropdownOpen(false);
-                          if (window.__openGhaymaCookieSettings) {
-                            window.__openGhaymaCookieSettings();
-                          }
+                          setAuthModalOpen(true);
                         }}
-                        className={`w-full flex items-center gap-2.5 p-2.5 rounded-xl transition-all text-start cursor-pointer ${
-                          dark ? "hover:bg-rose-950/60" : "hover:bg-rose-50"
-                        }`}
+                        className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white text-xs font-bold shadow-md shadow-rose-500/25 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                       >
-                        <Settings className="w-4 h-4 text-slate-400" />
-                        <span>{lang === "ar" ? "إعدادات الخصوصية والكوكيز" : "Cookies & Confidentialité"}</span>
+                        <User className="w-3.5 h-3.5" />
+                        <span>{lang === "ar" ? "تسجيل الدخول / إنشاء حساب 🌸" : "Connexion / Inscription 🌸"}</span>
                       </button>
+                    </div>
+                  )}
 
+                  {/* 2. Quick Command Bar: Shop Icon + Theme Icon + Language Switcher */}
+                  <div
+                    className={`p-2.5 rounded-2xl border mb-3 flex items-center justify-between gap-2 ${
+                      dark ? "bg-[#25172e] border-rose-900/50" : "bg-rose-50/70 border-rose-200/60"
+                    }`}
+                  >
+                    {/* Shop Shortcut */}
+                    <Link
+                      to="/books"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-300 hover:bg-rose-500/15 transition-all cursor-pointer"
+                      title={lang === "ar" ? "المتجر والكتب" : "Boutique & Livres"}
+                    >
+                      <ShoppingBag className="w-4 h-4 text-rose-500" />
+                      <span className="text-[11px]">{lang === "ar" ? "المتجر" : "Boutique"}</span>
+                    </Link>
+
+                    <div className="h-5 w-px bg-rose-500/20" />
+
+                    {/* Theme Toggle Button */}
+                    <button
+                      type="button"
+                      onClick={() => setDark((prev) => !prev)}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-rose-200 hover:bg-rose-500/15 transition-all cursor-pointer"
+                      title={lang === "ar" ? "تبديل المظهر" : "Changer de thème"}
+                    >
+                      {dark ? (
+                        <Sun className="w-4 h-4 text-amber-400" />
+                      ) : (
+                        <Moon className="w-4 h-4 text-indigo-500" />
+                      )}
+                      <span className="text-[11px]">
+                        {dark ? (lang === "ar" ? "نهاري" : "Clair") : (lang === "ar" ? "ليلي" : "Sombre")}
+                      </span>
+                    </button>
+
+                    <div className="h-5 w-px bg-rose-500/20" />
+
+                    {/* Language Switcher Buttons */}
+                    <div className="flex items-center gap-1">
+                      {["ar", "fr", "en"].map((code) => (
+                        <button
+                          key={code}
+                          type="button"
+                          onClick={() => handleLanguageSwitch(code)}
+                          className={`px-2 py-1 rounded-lg text-[10px] font-extrabold uppercase transition-all cursor-pointer ${
+                            lang === code
+                              ? "bg-rose-500 text-white shadow-xs"
+                              : dark
+                              ? "text-rose-200/70 hover:text-white"
+                              : "text-slate-600 hover:text-rose-600"
+                          }`}
+                        >
+                          {code}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 3. Integrated Notification Center */}
+                  <div
+                    className={`p-3 rounded-2xl border mb-3 space-y-2 ${
+                      dark ? "bg-[#25172e]/60 border-rose-900/50" : "bg-white border-rose-200/70"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between pb-2 border-b border-rose-500/15">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-rose-100">
+                        <Bell className="w-3.5 h-3.5 text-rose-500" />
+                        <span>{t.notifications.title}</span>
+                        {unreadCount > 0 && (
+                          <span className="px-1.5 py-0.2 rounded-full bg-red-500 text-white text-[9px] font-bold">
+                            {unreadCount}
+                          </span>
+                        )}
+                      </div>
+                      {notifications.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={clearNotifications}
+                          className="text-[10px] font-semibold text-rose-500 hover:underline cursor-pointer"
+                        >
+                          {t.notifications.clearAll}
+                        </button>
+                      )}
+                    </div>
+
+                    {notifications.length === 0 ? (
+                      <p className="text-[11px] text-center py-2.5 opacity-60">
+                        {t.notifications.empty}
+                      </p>
+                    ) : (
+                      <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                        {notifications.map((n) => (
+                          <div
+                            key={n.id}
+                            className={`p-2 rounded-xl text-[11px] leading-relaxed transition-all ${
+                              dark ? "bg-[#1c1223] text-rose-100" : "bg-rose-50/70 text-slate-800"
+                            }`}
+                          >
+                            <p className="font-medium">
+                              {lang === "ar" ? n.textAr : lang === "fr" ? n.textFr : n.textEn}
+                            </p>
+                            <span className="text-[9px] opacity-60 mt-0.5 block">
+                              {n.time}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 4. Quick Navigation Links */}
+                  <div className="space-y-1 text-xs">
+                    <Link
+                      to="/challenges"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className={`flex items-center gap-2.5 p-2 rounded-xl transition-all ${
+                        dark ? "hover:bg-rose-950/60" : "hover:bg-rose-50"
+                      }`}
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      <span>{lang === "ar" ? "تحدياتي وروتيني اليومي" : "Mes Défis & Routines"}</span>
+                    </Link>
+
+                    <Link
+                      to="/articles"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className={`flex items-center gap-2.5 p-2 rounded-xl transition-all ${
+                        dark ? "hover:bg-rose-950/60" : "hover:bg-rose-50"
+                      }`}
+                    >
+                      <Feather className="w-3.5 h-3.5 text-rose-500" />
+                      <span>{lang === "ar" ? "المقالات والخواطر" : "Articles & Réflexions"}</span>
+                    </Link>
+
+                    <Link
+                      to="/delivery"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className={`flex items-center gap-2.5 p-2 rounded-xl transition-all ${
+                        dark ? "hover:bg-rose-950/60" : "hover:bg-rose-50"
+                      }`}
+                    >
+                      <Truck className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>{lang === "ar" ? "أسعار وتوصيل 69 ولاية" : "Livraison 69 Wilayas"}</span>
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        if (window.__openGhaymaCookieSettings) {
+                          window.__openGhaymaCookieSettings();
+                        }
+                      }}
+                      className={`w-full flex items-center gap-2.5 p-2 rounded-xl transition-all text-start cursor-pointer ${
+                        dark ? "hover:bg-rose-950/60" : "hover:bg-rose-50"
+                      }`}
+                    >
+                      <Settings className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{lang === "ar" ? "إعدادات الخصوصية والكوكيز" : "Cookies & Confidentialité"}</span>
+                    </button>
+
+                    {currentUser && (
                       <button
                         type="button"
                         onClick={() => {
                           setUserDropdownOpen(false);
                           setDeleteConfirmOpen(true);
                         }}
-                        className={`w-full flex items-center gap-2.5 p-2.5 rounded-xl transition-all text-start text-red-500 hover:bg-red-500/10 cursor-pointer`}
+                        className="w-full flex items-center gap-2.5 p-2 rounded-xl transition-all text-start text-red-500 hover:bg-red-500/10 cursor-pointer"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                         <span>{lang === "ar" ? "حذف حسابي وبياناتي (RGPD)" : "Supprimer mon compte (RGPD)"}</span>
                       </button>
-                    </div>
+                    )}
+                  </div>
 
+                  {/* 5. Logout Button (If logged in) */}
+                  {currentUser && (
                     <div className="pt-2 mt-2 border-t border-rose-500/15">
                       <button
                         type="button"
@@ -575,19 +649,10 @@ export default function Navbar() {
                         <span>{lang === "ar" ? "تسجيل الخروج" : "Se déconnecter"}</span>
                       </button>
                     </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setAuthModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-rose-500/30 text-rose-600 dark:text-rose-300 hover:bg-rose-500 hover:text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
-              >
-                <User className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{lang === "ar" ? "حسابي / دخول" : "Espace Membre"}</span>
-              </button>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Order CTA Button */}
             <Link
