@@ -272,78 +272,7 @@ export const INITIAL_CHALLENGES = [
   }
 ];
 
-export const INITIAL_ARTICLES = [
-  {
-    id: "fajr-routine-serenite",
-    slug: "fajr-routine-serenite",
-    titleFr: "Bâtir un matin de paix : La prière du Fajr comme refuge pour l'âme",
-    titleAr: "بناء صباح يفيض بالسكينة: صلاة الفجر ملاذ الروح وسر البركة",
-    titleEn: "Building a Peaceful Morning: Fajr Prayer as a Soul's Sanctuary",
-    excerptFr: "Se réveiller à l'aube quand le monde dort encore, respirer la fraîcheur céleste et confier ses secrets au Créateur. Découvrez mon rituel matinal doux et apaisant.",
-    excerptAr: "أن تستيقظي مع تباشير الصبح والكون لا يزال نائماً، تستنشقين نفحات الرحمة وتودعين أسرارك عند الخالق. إليك طريقتي في روتين الصباح الهادئ.",
-    excerptEn: "Waking at dawn while the world sleeps, breathing celestial morning dew, and whispering prayers. Discover my gentle, grounding morning routine.",
-    contentFr: `Il y a dans les premières lueurs de l'aube un secret que seuls ceux qui se lèvent pour le Fajr peuvent ressentir. Ce n'est pas simplement un réveil matinal, c'est un rendez-vous intime avec la paix.
-
-Lorsque la cloche de l'aube sonne, le monde extérieur est encore plongé dans le silence le plus absolu. C'est à cet instant précis que l'âme se détache du bruit du monde, des notifications incessantes et des attentes des autres.
-
-Mon rituel commence toujours par les deux unités de prière de la Sunnah du Fajr, dont le Prophète ﷺ disait qu'elles valent mieux que ce bas-monde et tout ce qu'il contient. Puis, le recueillement de la prière obligatoire, suivi d'une tasse de tisane chaude ou de café parfumé à la cannelle, entourée de mes carnets d'écriture.
-
-Si vous avez du mal à vous réveiller, commencez avec douceur : préparez vos vêtements la veille, posez votre réveil loin du lit et offrez-vous ce quart d'heure de silence comme un cadeau, non comme une contrainte.`,
-    contentAr: `في سكون الفجر سرٌ لا يدركه إلا من اختار الاستيقاظ والكون لا يزال غارقاً في نومه. ليست مجرد بداية ليوم جديد، بل موعدٌ خاص تصفو فيه الروح وتلتقي بالسكينة.
-
-حين يصدح الأذان «الصلاة خير من النوم»، ينادي القلبَ نداءُ الطمأنينة. تتوضئين بماءٍ بارد ينعش العزيمة، وتسجدين في هدوءٍ يمحو كل قلق وتعب كان بالأمس.
-
-يبدأ روتيني بركعتي الفجر (السنة)، اللتين هما خيرٌ من الدنيا وما فيها. ثم ركعتا الفريضة بقلبٍ حاضر، يعقبهما دقائق من أذكار الصباح مع فنجان قهوة أو شاي دافئ وأوراقي وقلمي لكتابة مشاعر الامتنان.
-
-إذا كنتِ تجدين صعوبة في الاستيقاظ، تدرجي برفق: اخلدي للنوم مبكراً، وجهزي سجادتك ومصحفك، وتذكري أن هذه الدقائق هدية لروحك تملأ يومكِ كله بركة وتوفيقاً.`,
-    contentEn: `In the silence of dawn lies a profound secret only early risers can fathom. It is not just about waking early; it is a sacred rendezvous with inner tranquility.
-
-When the call of Fajr echoes through the quiet dawn, your soul finds a pause from the world's turbulence. Starting with the two Sunnah Rak'ats, each movement anchors you in peace and gratitude.`,
-    category: "Spiritualité & Routine",
-    categoryAr: "روحانيات وروتين",
-    author: "ghayma_rd (R.Dahmane)",
-    date: "2026-11-20",
-    readTime: "4 min",
-    coverImage: "/images/book-spread.jpg",
-    gallery: [
-      "/images/book-front.jpg",
-      "/images/book-shelf.jpeg"
-    ],
-    likesCount: 0,
-    commentsCount: 0,
-    published: true
-  },
-  {
-    id: "lart-decrire-entre-les-nuages",
-    slug: "lart-decrire-entre-les-nuages",
-    titleFr: "L'art d'écrire entre les nuages : Comment mes carnets sont devenus des livres",
-    titleAr: "فن الكتابة بين الغيوم: كيف تحولت مذكراتي البسيطة إلى كتب منشورة",
-    titleEn: "The Art of Writing Among Clouds: How Personal Notebooks Became Published Books",
-    excerptFr: "Écrire n'a jamais été pour moi un travail, mais une respiration. Retour en intimité sur les étapes de création de mes romans et recueils poétiques.",
-    excerptAr: "لم تكن الكتابة بالنسبة لي يوماً مجرد كلمات، بل متنفساً حقيقياً. أشارككم هنا الرحلة الصادقة من أوراقي الخاصة إلى كتب بين أيديكم.",
-    excerptEn: "Writing was never just a craft to me, but breathing itself. An intimate journey behind the making of my books and poetry collections.",
-    contentFr: `Chaque livre commence par une idée timide notée à la hâte sur un carnet de notes ou dans les marges d'un carnet d'esquisses. Chez ghayma_rd, chaque mot est pesé pour apporter du réconfort à celles qui le lisent.
-
-J'ai toujours cru que les émotions vraies finissent toujours par trouver leur écho dans le cœur des lectrices. Quand j'écris, j'imagine une jeune femme assise près de sa fenêtre avec une tasse de thé, cherchant dans mes lignes une preuve qu'elle n'est pas seule à ressentir ce qu'elle ressent.`,
-    contentAr: `يبدأ كل كتاب بفكرة خجولة أدوّنها على عجل في دفترٍ صغير. في كتاباتي باسم ghayma_rd، أحرص على أن تكون كل كلمة بمثابة لمسة حنان لقلبٍ أرهقه الانتظار.
-
-آمنتُ دائماً بأن الصدق هو الجسر الوحيد إلى قلوب القارئات. حين أكتب، أتخيل قارئة تجلس قرب نافذتها في مساءٍ هادئ، تبحث بين سطوري عن طمأنينة تشعرها بأنها ليست وحيدة.`,
-    contentEn: `Every book begins with a tender note jotted on paper. As ghayma_rd, my goal has always been to offer words that feel like a warm comforting cloud.`,
-    category: "Parcours Littéraire",
-    categoryAr: "رحلتي الأدبية",
-    author: "ghayma_rd (R.Dahmane)",
-    date: "2026-11-15",
-    readTime: "5 min",
-    coverImage: "/images/book-front.jpg",
-    gallery: [
-      "/images/book-spread.jpg",
-      "/images/book-shelf.jpeg"
-    ],
-    likesCount: 0,
-    commentsCount: 0,
-    published: true
-  }
-];
+export const INITIAL_ARTICLES = [];
 
 export const INITIAL_COMMENTS = [];
 

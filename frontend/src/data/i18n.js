@@ -6,7 +6,7 @@ export const TRANSLATIONS = {
     nav: {
       home: "الرئيسية",
       books: "مؤلفاتي والكتب",
-      challenges: "تحديات غيمة 🌸",
+      challenges: "التحديات 🌸",
       about: "عن الكاتبة",
       contact: "تواصلي معي",
       orderNow: "اطلبي كتابك الآن",
@@ -15,7 +15,7 @@ export const TRANSLATIONS = {
     breadcrumbs: {
       home: "الرئيسية",
       books: "المتجر والكتب",
-      challenges: "تحديات غيمة واليوميات",
+      challenges: "التحديات",
       about: "عن ghayma_rd (ر. دحمان)",
       contact: "تواصلي معنا",
       checkout: "تأكيد الطلب"
@@ -162,7 +162,7 @@ export const TRANSLATIONS = {
     nav: {
       home: "Accueil",
       books: "Boutique & Livres",
-      challenges: "Défis Ghayma 🌸",
+      challenges: "Défis 🌸",
       about: "À Propos de l'Écrivaine",
       contact: "Contact",
       orderNow: "Commander",
@@ -171,7 +171,7 @@ export const TRANSLATIONS = {
     breadcrumbs: {
       home: "Accueil",
       books: "Livres & Boutique",
-      challenges: "Défis Ghayma & Journal",
+      challenges: "Défis",
       about: "À Propos de l'Écrivaine",
       contact: "Contactez-nous",
       checkout: "Commander"
@@ -318,7 +318,7 @@ export const TRANSLATIONS = {
     nav: {
       home: "Home",
       books: "Books & Shop",
-      challenges: "Ghayma Challenges 🌸",
+      challenges: "Challenges 🌸",
       about: "About the Author",
       contact: "Contact",
       orderNow: "Order Now",
@@ -327,7 +327,7 @@ export const TRANSLATIONS = {
     breadcrumbs: {
       home: "Home",
       books: "Books & Shop",
-      challenges: "Ghayma Challenges & Journal",
+      challenges: "Challenges",
       about: "About the Author",
       contact: "Contact Us",
       checkout: "Checkout"

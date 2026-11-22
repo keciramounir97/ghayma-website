@@ -530,42 +530,40 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Detailed Behavior Explanation Box (FIXED HIGH-CONTRAST COLORS) */}
+          {/* Detailed Behavior Explanation Box (FIXED HIGH-CONTRAST COLORS IN WHITE & DARK MODE) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Card 1: ACTIVÉ */}
             <div
-              style={{
-                backgroundColor: deliveryEnabled
+              className={`p-5 rounded-2xl border-2 transition-all duration-300 ${
+                deliveryEnabled
                   ? dark
-                    ? "rgba(6, 78, 59, 0.4)"
-                    : "#ecfdf5"
+                    ? "bg-emerald-950/40 border-emerald-500 text-emerald-100 shadow-md shadow-emerald-950/20"
+                    : "bg-emerald-50/90 border-emerald-500 text-emerald-950 shadow-xs"
                   : dark
-                  ? "#180e22"
-                  : "#f8fafc",
-                borderColor: deliveryEnabled ? "#10b981" : dark ? "rgba(244,63,94,0.2)" : "#cbd5e1",
-                color: deliveryEnabled
-                  ? dark
-                    ? "#d1fae5"
-                    : "#064e3b"
-                  : dark
-                  ? "#fbcfe8"
-                  : "#1e293b"
-              }}
-              className="p-5 rounded-2xl border-2 transition-all"
+                  ? "bg-[#1d1225] border-rose-900/40 text-rose-100"
+                  : "bg-slate-50 border-slate-200 text-slate-800"
+              }`}
             >
               <div
-                style={{
-                  color: deliveryEnabled
+                className={`flex items-center gap-2 font-black text-sm mb-2.5 ${
+                  deliveryEnabled
                     ? dark
-                      ? "#34d399"
-                      : "#047857"
+                      ? "text-emerald-300"
+                      : "text-emerald-800"
                     : dark
-                    ? "#fda4af"
-                    : "#334155"
-                }}
-                className="flex items-center gap-2 font-black text-sm mb-2"
+                    ? "text-rose-200"
+                    : "text-slate-900"
+                }`}
               >
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
+                <CheckCircle2
+                  className={`w-4 h-4 shrink-0 ${
+                    deliveryEnabled
+                      ? "text-emerald-500"
+                      : dark
+                      ? "text-rose-400"
+                      : "text-slate-500"
+                  }`}
+                />
                 <span>
                   {lang === "ar"
                     ? "عند التفعيل بالعلامة الخضراء (ACTIVÉ)"
@@ -573,16 +571,15 @@ export default function SettingsPage() {
                 </span>
               </div>
               <ul
-                style={{
-                  color: deliveryEnabled
+                className={`text-xs space-y-2 list-disc list-inside leading-relaxed font-semibold ${
+                  deliveryEnabled
                     ? dark
-                      ? "#ecfdf5"
-                      : "#064e3b"
+                      ? "text-emerald-100"
+                      : "text-emerald-950"
                     : dark
-                    ? "#fbcfe8"
-                    : "#334155"
-                }}
-                className="text-xs space-y-2 list-disc list-inside leading-relaxed font-semibold"
+                    ? "text-rose-100/90"
+                    : "text-slate-700"
+                }`}
               >
                 <li>
                   {lang === "ar"
@@ -604,38 +601,36 @@ export default function SettingsPage() {
 
             {/* Card 2: DÉSACTIVÉ */}
             <div
-              style={{
-                backgroundColor: !deliveryEnabled
+              className={`p-5 rounded-2xl border-2 transition-all duration-300 ${
+                !deliveryEnabled
                   ? dark
-                    ? "rgba(136, 19, 55, 0.4)"
-                    : "#fff1f2"
+                    ? "bg-rose-950/40 border-rose-500 text-rose-100 shadow-md shadow-rose-950/20"
+                    : "bg-rose-50/90 border-rose-400 text-rose-950 shadow-xs"
                   : dark
-                  ? "#180e22"
-                  : "#f8fafc",
-                borderColor: !deliveryEnabled ? "#f43f5e" : dark ? "rgba(244,63,94,0.2)" : "#cbd5e1",
-                color: !deliveryEnabled
-                  ? dark
-                    ? "#ffe4e6"
-                    : "#881337"
-                  : dark
-                  ? "#fbcfe8"
-                  : "#1e293b"
-              }}
-              className="p-5 rounded-2xl border-2 transition-all"
+                  ? "bg-[#1d1225] border-rose-900/40 text-rose-100"
+                  : "bg-slate-50 border-slate-200 text-slate-800"
+              }`}
             >
               <div
-                style={{
-                  color: !deliveryEnabled
+                className={`flex items-center gap-2 font-black text-sm mb-2.5 ${
+                  !deliveryEnabled
                     ? dark
-                      ? "#fb7185"
-                      : "#be123c"
+                      ? "text-rose-300"
+                      : "text-rose-800"
                     : dark
-                    ? "#fda4af"
-                    : "#334155"
-                }}
-                className="flex items-center gap-2 font-black text-sm mb-2"
+                    ? "text-rose-200"
+                    : "text-slate-900"
+                }`}
               >
-                <Circle className="w-4 h-4 shrink-0 text-rose-500" />
+                <Circle
+                  className={`w-4 h-4 shrink-0 ${
+                    !deliveryEnabled
+                      ? "text-rose-500"
+                      : dark
+                      ? "text-rose-400"
+                      : "text-slate-500"
+                  }`}
+                />
                 <span>
                   {lang === "ar"
                     ? "عند إلغاء التحديد (معطّل - الوضع الافتراضي)"
@@ -643,16 +638,15 @@ export default function SettingsPage() {
                 </span>
               </div>
               <ul
-                style={{
-                  color: !deliveryEnabled
+                className={`text-xs space-y-2 list-disc list-inside leading-relaxed font-semibold ${
+                  !deliveryEnabled
                     ? dark
-                      ? "#fff1f2"
-                      : "#4c0519"
+                      ? "text-rose-100"
+                      : "text-rose-950"
                     : dark
-                    ? "#fbcfe8"
-                    : "#334155"
-                }}
-                className="text-xs space-y-2 list-disc list-inside leading-relaxed font-semibold"
+                    ? "text-rose-100/90"
+                    : "text-slate-700"
+                }`}
               >
                 <li>
                   {lang === "ar"
@@ -785,43 +779,45 @@ export default function SettingsPage() {
           {/* Simulated Wilaya & Commune with Guaranteed Contrast */}
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div
-              style={{
-                backgroundColor: dark ? "#24152d" : "#fdf2f4",
-                borderColor: dark ? "rgba(244,63,94,0.3)" : "#fbcfe8",
-                color: dark ? "#fff1f2" : "#0f172a"
-              }}
-              className="p-3 rounded-xl border shadow-xs"
+              className={`p-3 rounded-xl border-2 shadow-xs transition-colors ${
+                dark
+                  ? "bg-[#23152d] border-rose-800/60 text-white"
+                  : "bg-rose-50/70 border-rose-200 text-slate-900"
+              }`}
             >
               <span
-                style={{ color: dark ? "#fda4af" : "#9f1239" }}
-                className="block text-[11px] font-bold"
+                className={`block text-[11px] font-bold ${
+                  dark ? "text-rose-300" : "text-rose-700"
+                }`}
               >
                 Wilaya:
               </span>
               <span
-                style={{ color: dark ? "#ffffff" : "#0f172a" }}
-                className="font-black text-xs sm:text-sm"
+                className={`font-black text-xs sm:text-sm ${
+                  dark ? "text-white" : "text-slate-950"
+                }`}
               >
                 16 - Alger (الجزائر)
               </span>
             </div>
             <div
-              style={{
-                backgroundColor: dark ? "#24152d" : "#fdf2f4",
-                borderColor: dark ? "rgba(244,63,94,0.3)" : "#fbcfe8",
-                color: dark ? "#fff1f2" : "#0f172a"
-              }}
-              className="p-3 rounded-xl border shadow-xs"
+              className={`p-3 rounded-xl border-2 shadow-xs transition-colors ${
+                dark
+                  ? "bg-[#23152d] border-rose-800/60 text-white"
+                  : "bg-rose-50/70 border-rose-200 text-slate-900"
+              }`}
             >
               <span
-                style={{ color: dark ? "#fda4af" : "#9f1239" }}
-                className="block text-[11px] font-bold"
+                className={`block text-[11px] font-bold ${
+                  dark ? "text-rose-300" : "text-rose-700"
+                }`}
               >
                 Commune:
               </span>
               <span
-                style={{ color: dark ? "#ffffff" : "#0f172a" }}
-                className="font-black text-xs sm:text-sm"
+                className={`font-black text-xs sm:text-sm ${
+                  dark ? "text-white" : "text-slate-950"
+                }`}
               >
                 Bab El Oued
               </span>
@@ -901,11 +897,11 @@ export default function SettingsPage() {
 
           {/* Price Calculation Simulation */}
           <div
-            style={{
-              backgroundColor: dark ? "#24152d" : "#fff1f2",
-              borderColor: dark ? "rgba(244,63,94,0.3)" : "#fecdd3"
-            }}
-            className="p-4 rounded-xl border space-y-2 text-xs"
+            className={`p-4 rounded-xl border-2 space-y-2 text-xs transition-colors ${
+              dark
+                ? "bg-[#23152d] border-rose-800/60"
+                : "bg-rose-50/50 border-rose-200"
+            }`}
           >
             <div className="flex justify-between">
               <span className="text-slate-700 dark:text-rose-200 font-medium">

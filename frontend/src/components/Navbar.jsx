@@ -129,8 +129,8 @@ export default function Navbar() {
     },
     {
       to: "/challenges",
-      label: lang === "ar" ? "تحديات وروتين الفجر ✨" : "Défis & Prière du Fajr ✨",
-      desc: lang === "ar" ? "تحدي نوفمبر وبركة الصباح ومواقيت الصلاة" : "Calendrier, streak et horaires de prière"
+      label: lang === "ar" ? "تحديات غيمة ✨" : "Défis Ghayma ✨",
+      desc: lang === "ar" ? "تحديات تفاعلية، إنجازات يومية ومجتمع غيمة" : "Défis interactifs, routines et communauté"
     },
     {
       to: "/about",
